@@ -17,7 +17,7 @@ namespace RegistroTecnicos.Service
 			_context = context;
 
 		}
-		 
+		  
 		//Metodo para verificar si el tecnico exite
 		public async Task<bool> Existe(int id)
 		{
