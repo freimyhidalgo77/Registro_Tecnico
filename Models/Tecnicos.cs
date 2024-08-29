@@ -18,4 +18,4 @@ namespace RegistroTecnicos.Models
 		   
 	}   
 } 
-  
+   

@@ -15,7 +15,7 @@ namespace RegistroTecnicos.Service
 		public TecnicoService(Context context)
 		{
 			_context = context;
-
+			 
 		}
 		  
 		//Metodo para verificar si el tecnico exite
