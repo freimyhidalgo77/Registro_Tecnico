@@ -8,7 +8,7 @@ namespace RegistroTecnicos.Service
 {
 	public class TecnicoService
 	{
-		
+		 
 		private readonly Context _context;
 
 		//Se llama al context
