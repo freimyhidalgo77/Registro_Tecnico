@@ -14,8 +14,7 @@ namespace RegistroTecnicos.Models
 		[Required (ErrorMessage = "Por favor ingrese el valor del sueldo por hora ")]   
 
 		public float SueldoHora {get; set;}   
-		    
-		   
+		     
 	}   
 } 
    
