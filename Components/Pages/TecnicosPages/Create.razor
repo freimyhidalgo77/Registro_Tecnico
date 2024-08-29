@@ -1,0 +1,73 @@
+﻿@page "/Tecnicos/Create"
+@rendermode InteractiveServer
+@inject TecnicoService tecnicoService
+@inject NavigationManager navigation
+
+<PageTitle>Crear nuevo Tecnico</PageTitle>
+<EditForm Model="tecnicos" OnValidSubmit="Crear">
+	<DataAnnotationsValidator />
+	<div class="container"></div>
+		<div class="card shadow-lg">
+			<div class="card-header bg-primary text-white-center">
+				<h1<strong>Crear nuevo tecnico</strong></h1>
+			</div>
+			@*Body*@
+			<div class="card-body">
+
+				@*Id tecnico*@
+				<label for="id" class="form-label"><strong>T&eacute;cnico Id</strong></label>
+				<InputNumber id="id" class="form-control" @bind-Value="tecnicos.TecnicoId" readonly></InputNumber>
+			
+				@*Nombre tecnico*@
+				<label for="id" class="form-label"><strong>Nombre</strong></label>
+				<InputText id="NombreTecnico" class="form-control" @bind-Value="tecnicos.NombreTecnico"></InputText>
+				<ValidationMessage For="@(()=>tecnicos.NombreTecnico)"></ValidationMessage>
+
+				@*Sueldo Tecnico*@
+				<label for="id" class="form-label"><strong>Sueldo por hora</strong></label>
+				<InputNumber id="SueldoTecnico" class="form-control" @bind-Value="tecnicos.SueldoHora"></InputNumber>
+				<ValidationMessage For="@(()=>tecnicos.SueldoHora)"></ValidationMessage>
+			</div>
+			@*Footer*@
+			<div class="card-footer">
+			<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left " @onclick="Volver"> Volver</button>
+			<button type="submit" class="btn btn-success bi bi-floppy-fill"> Guardar</button>
+
+			</div>
+		</div>
+
+</EditForm>
+
+
+
+@code {
+
+	
+	public Tecnicos tecnicos { get; set; } = new Tecnicos();
+
+	//Metodo para validar atributos tecnicos(nombre,sueldo)
+	public async Task<bool> Validar()
+	{
+		return await tecnicoService.ValidarTecnico(tecnicos.NombreTecnico);
+	}
+
+
+	//Metodo para crear un nuevo tecnico
+	public async Task Crear()
+	{
+		if(!await Validar())
+		{
+			await tecnicoService.Guardar(tecnicos);
+			tecnicos = new Tecnicos();
+			navigation.NavigateTo("/Tecnicos/Index");
+		}
+	}
+
+	//Metodo para volver
+	public void Volver()
+	{
+		navigation.NavigateTo("/Tecnicos/Index");
+	}
+
+
+}
