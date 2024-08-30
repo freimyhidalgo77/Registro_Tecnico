@@ -3,19 +3,19 @@
 @inject TecnicoService tecnicoService
 @inject NavigationManager navigation
 
-<PageTitle>Crear nuevo Tecnico</PageTitle> 
+<PageTitle>Crear nuevo T&eacute;cnico</PageTitle> 
 <EditForm Model="tecnicos" OnValidSubmit="Crear">
 	<DataAnnotationsValidator />
 	<div class="container"></div>
 		<div class="card shadow-lg">
-			<div class="card-header bg-primary text-white-center">
-				<h1<strong>Crear nuevo tecnico</strong></h1>
+			<div class="card-header bg-primary text-white text-center">
+			<h1><strong>Crear nuevo t&eacute;cnico</strong></h1>
 			</div>
 			@*Body*@
 			<div class="card-body">
 
 				@*Id tecnico*@
-				<label for="id" class="form-label"><strong>T&eacute;cnico Id</strong></label>
+				<label for="id" class="form-label"><strong>T&eacute;cnico ID</strong></label>
 				<InputNumber id="id" class="form-control" @bind-Value="tecnicos.TecnicoId" readonly></InputNumber>
 			
 				@*Nombre tecnico*@
@@ -26,15 +26,14 @@
 				@*Sueldo Tecnico*@
 				<label for="id" class="form-label"><strong>Sueldo por hora</strong></label>
 				<InputNumber id="SueldoTecnico" class="form-control" @bind-Value="tecnicos.SueldoHora"></InputNumber>
-				<ValidationMessage For="@(()=>tecnicos.SueldoHora)"></ValidationMessage>
+			    <ValidationMessage For="@(()=>tecnicos.SueldoHora)"></ValidationMessage>
 			</div>
 			@*Footer*@
 			<div class="card-footer">
-			<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left " @onclick="Volver"> Volver</button>
-			<button type="submit" class="btn btn-success bi bi-floppy-fill"> Guardar</button>
-
+			     <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left " @onclick="Volver"> Volver</button>
+			     <button type="submit" class="btn btn-success bi bi-floppy-fill"> Guardar</button>
 			</div>
-		</div>
+		</div> 
 
 </EditForm>
 
@@ -47,13 +46,13 @@
 
 	//Metodo para validar atributos tecnicos(nombre,sueldo)
 	public async Task<bool> Validar()
-	{
-		return await tecnicoService.ValidarTecnico(tecnicos.NombreTecnico);
+	{ 
+		return await tecnicoService.ValidarTecnico(tecnicos.NombreTecnico);        
 	}
 
 
 	//Metodo para crear un nuevo tecnico
-	public async Task Crear()
+	public async Task Crear()  
 	{
 		if(!await Validar())
 		{

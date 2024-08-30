@@ -3,13 +3,13 @@
 @inject TecnicoService tecnicoService
 @inject NavigationManager navigation
 
-<PageTitle>Editar Tecnico</PageTitle>
+<PageTitle>Editar t&eacute;cnico</PageTitle>
 <EditForm Model="tecnicos" OnValidSubmit="Modificar">
 	<DataAnnotationsValidator />
 	<div class="container">
 		<div class="card shadow-lg">
-			<div class="card-header bg-primary text-white">
-				<h1><strong>Editar Tecnico</strong></h1>
+			<div class="card-header bg-primary text-white text-center">
+				<h1><strong>Editar t&eacute;cnico</strong></h1>
 			</div>
 			<div class="card-body">
 				@*Atributos Tecnicos*@
@@ -20,7 +20,7 @@
 				<InputText id="NombreTecnico" class="form-control" @bind-Value="tecnicos.NombreTecnico"></InputText>
 				<ValidationMessage For="@(()=> tecnicos.NombreTecnico)"></ValidationMessage>
 
-				<label for="SueldoHora" class="form-label"><strong>SueldoHora</strong></label>
+				<label for="SueldoHora" class="form-label"><strong>Sueldo por hora</strong></label>
 				<InputNumber id="SueldoHora" class="form-control" @bind-Value="tecnicos.SueldoHora"></InputNumber>
 				<ValidationMessage For="@(()=> tecnicos.SueldoHora)"></ValidationMessage>
 			</div>

@@ -3,29 +3,29 @@
 @inject TecnicoService tecnicoService
 @inject NavigationManager navigation
 
-<PageTitle>Tecnicos</PageTitle>
+<PageTitle> Registro de t&eacute;cnicos</PageTitle>
 <div class = "container">
-	<div class ="card-header bg-primary text-white">
-		<h3 class="T&eacute;cnicos"><strong>Registro de T&eacute;cnicos</strong></h3>
+	<div class="card-header bg-primary text-white text-center bi bi-person-gear">
+		<h3><strong>Registro de t&eacute;cnicos</strong></h3>
 	</div>
 	<div class="row text-right">
 		<div class="col-md-3">
 			<label for="filtro" class="from label"><strong>Filtrar por:</strong></label>
 			<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
 				<option value="id">ID</option>
-				<option value="Nombre">NombreTecnico</option>
-				<option value="SueldoHora">SueldoHora</option>
+				<option value="Nombre">Nombre del t&eacute;cnico</option>
+				<option value="SueldoHora">Sueldo por hora</option>
 			</InputSelect> 
 	    </div>
 		<div class="col-md-6">
-			<label for="valorFiltro" class="form-label"><strong>B&uacute;squeda</strong></label>
+			<label for="valorFiltro" class="form-label"><strong>B&uacute;squeda:</strong></label>
 			<div class="input-group">
 				<InputText id="valorFiltro" @bind-Value="valorFiltro" class="form-control" placeholder="Buscar" />
-				<button @onclick="Buscar" class="btn btn-danger bi bi-search" type="button"> Buscar</button>
+				<button @onclick="Buscar" class="btn btn-success bi bi-search" type="button"> B&uacute;scar</button>
 			</div>
 		</div>
 		<div class="text-left">
-			<a href="/Tecnicos/Create" class="btn btn-danger bi bi-plus-square-fill"> Crear</a>
+			<a href="/Tecnicos/Create" class="btn btn-success bi bi-plus-square-fill"> Crear</a>
 		</div>
 	</div>
 
@@ -101,7 +101,7 @@
 					break;
 
 				case "SueldoHora":
-					if(float.TryParse(valorFiltro, out float SueldoHora))
+					if(decimal.TryParse(valorFiltro, out decimal SueldoHora))
 					{
 						tecnicos = await tecnicoService.Listar(t => t.SueldoHora == SueldoHora);
 					}

@@ -5,24 +5,24 @@
 @inject NavigationManager navigation
 
 
-<PageTitle>Detalles Tecnico</PageTitle>
+<PageTitle>Detalles del t&eacute;cnico</PageTitle>
    <div class="container">
 	   <div class="card shadow-lg">
 		   @*Header*@
-		     <div class="card-header bg-primary text-white">
-			  <h3><strong>Detalles Tecnico</strong></h3>
+		     <div class="card-header bg-primary text-white text-center">
+			<h3><strong>Detalles del t&eacute;cnico</strong></h3>
 		       </div>
 	        </div>
 	   @*Body*@
 	   <div class="card-body">
-		   <h5><strong>Detalles del tecnico</strong></h5>
+		<h5><strong>Detalles del t&eacute;cnico</strong></h5>
 		@if(tecnicos != null)
 		{
 			@*Datos*@
 			<div class="mb-1">
-				<p class="mb-0">Tecnico Id: @tecnicos.TecnicoId</p>
+				<p class="mb-0">T&eacute;cnico ID: @tecnicos.TecnicoId</p>
 				<div class="mb-1">
-					<p class="mb-0">Nombre tecnico: @tecnicos.NombreTecnico</p>
+					<p class="mb-0">Nombre t&eacute;cnico: @tecnicos.NombreTecnico</p>
 				</div>
 				<div class="mb-1">
 					<p class="mb-0">Sueldo por hora: @tecnicos.SueldoHora</p>
