@@ -41,10 +41,10 @@
 
 @code {
 
-	
+	    
 	public Tecnicos tecnicos { get; set; } = new Tecnicos();
 
-	//Metodo para validar atributos tecnicos(nombre,sueldo)
+	//Metodo para validar atributos tecnicos(nombre,sueldo) 
 	public async Task<bool> Validar()
 	{ 
 		return await tecnicoService.ValidarTecnico(tecnicos.NombreTecnico);        
