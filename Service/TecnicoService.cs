@@ -13,7 +13,7 @@ namespace RegistroTecnicos.Service
 
 		//Se llama al context
 		public TecnicoService(Context context)
-		{
+		{ 
 			_context = context;
 			 
 		}
