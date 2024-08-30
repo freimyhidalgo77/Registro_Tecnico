@@ -8,13 +8,16 @@ namespace RegistroTecnicos.Models
 		//Atributos Tecnico (Id, Nombre, Sueldo por hora)
 		public int TecnicoId { get; set; }
 
-		[Required (ErrorMessage = "Por favor, ingrese el nombre del Tecnico")]
+		[Required(ErrorMessage = "El campo nombre es obligatorio.")]
+
+		[RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "El campo solo puede contener letras y espacios.")]
 		public string NombreTecnico { get; set; }
 
-		[Required (ErrorMessage = "Por favor ingrese el valor del sueldo por hora ")]   
 
-		public float SueldoHora {get; set;}   
+		[Required (ErrorMessage = "Campo sueldo por hora obligatrio ")]   
+
+		public decimal SueldoHora {get; set;}    
 		     
 	}   
-} 
+}  
    
