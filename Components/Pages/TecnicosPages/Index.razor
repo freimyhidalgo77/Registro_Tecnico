@@ -4,7 +4,7 @@
 @inject NavigationManager navigation
 
 <PageTitle> Registro de t&eacute;cnicos</PageTitle>
-<div class = "container">
+<div class = "container card shadow-lg">
 	<div class="card-header bg-primary text-white text-center bi bi-person-gear">
 		<h3><strong>Registro de t&eacute;cnicos</strong></h3>
 	</div>
@@ -24,11 +24,15 @@
 				<button @onclick="Buscar" class="btn btn-success bi bi-search" type="button"> B&uacute;scar</button>
 			</div>
 		</div>
-		<div class="text-left">
+		<div class="col-md-3 d-flex align-items-end justify-content-md-end mt-3 mt-md-0">
 			<a href="/Tecnicos/Create" class="btn btn-success bi bi-plus-square-fill"> Crear</a>
 		</div>
 	</div>
 
+	
+
+	
+	 
 	@*Tabla*@
 	<div class="card-body">
 		<table class="table table-light">
@@ -53,13 +57,13 @@
 
 						@*Iconos*@
 						<td class="text-center">
-							<a href="/Tecnicos/Details/@tecnico.TecnicoId" class="btn btn-info text-white bi bi-eye"></a>
+							<a href="/Tecnicos/Details/@tecnico.TecnicoId" class="btn btn-outline-info  bi bi-eye"></a>
 						</td>
 						<td class="text-center">
-							<a href="/Tecnicos/Edit/@tecnico.TecnicoId" class="btn btn-warning text-white bi bi-pencil-square"></a>
+							<a href="/Tecnicos/Edit/@tecnico.TecnicoId" class="btn btn-outline-warning  bi bi-pencil-square"></a>
 						</td>
 						<td class="text-center">
-							<a href="/Tecnicos/Delete/@tecnico.TecnicoId" class="btn btn-danger bi bi-trash"></a>
+							<a href="/Tecnicos/Delete/@tecnico.TecnicoId" class="btn btn-outline-danger bi bi-trash"></a>
 						</td>
 					</tr>
 				}
