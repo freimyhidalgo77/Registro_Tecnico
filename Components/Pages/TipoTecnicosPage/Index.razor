@@ -1,0 +1,109 @@
+﻿@page "/TiposTecnicos/Index"
+@rendermode InteractiveServer
+@inject TecnicoService tecnicoService
+@inject TiposTecnicoService tiposTecnicoService
+@inject NavigationManager navigation
+
+<PageTitle>T&eacute;cnicos</PageTitle>
+<div class="container card shadow-lg">
+    <div class="card-header bg-primary text-white text-center bi bi-person-gear">
+        <h3><strong>Tipos de t&eacute;cnicos</strong></h3>
+    </div>
+
+    @*Header*@
+    <div class="row text-right">
+        <div class="col-md-3">
+            <label for="Filtro" class="form-label"><strong>Filtrar por:</strong></label>
+            <InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+                <option value="" disabled>Seleccionar</option>
+                <option value="TipoId">Tipo Id</option>
+                <option value="Descripcion">Descripcion</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <label for="ValorFiltro" class="form-label"><strong>B&uacute;squeda</strong></label>
+            <div class="input-group">
+                <input @bind="ValorFiltro" class="form-control" placeholder="Buscar" />
+                <button @onclick="Buscar" class="btn btn-success" type="button">
+                    <span class="bi bi-search"></span> Buscar
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex align-items-end justify-content-md-end mt-3 mt-md-0">
+            <a href="/TiposTecnicos/Create" class="btn btn-success bi bi-plus-square-fill"> Crear</a>
+        </div>
+    </div>
+
+    @*Body*@
+    <div class="card-body">
+        <table class="table table-light table-bordered">
+            <thead class="table table-striped text-center table-bordered mt-3 bg-primary text-white">
+                <tr>
+                    <th>Tipo ID</th>
+                    <th>Descripcion</th>
+                    <th>Ver</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tecnico in filtrados)
+                {
+                    <tr>
+                        <td class="text-center">@tecnico.TipoId</td>
+                        <td class="text-center">@tecnico.Descripcion</td>
+                        <td class="text-center">
+                            <a href="/TiposTecnicos/Details/@tecnico.TipoId" class="btn btn-outline-info bi bi-eye"></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="/TiposTecnicos/Edit/@tecnico.TipoId" class="btn btn-outline-warning bi bi-pencil-square"></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="/TiposTecnicos/Delete/@tecnico.TipoId" class="btn btn-outline-danger bi bi-trash"></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    public List<Tecnicos> tecnicos = new List<Tecnicos>();
+    public List<TiposTecnicos> tiposTecnico = new List<TiposTecnicos>();
+    public List<TiposTecnicos> filtrados { get; set; } = new List<TiposTecnicos>();
+    private string filtro { get; set; } = "TipoId";
+    private string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tecnicos = await tecnicoService.Listar(t => true);
+        tiposTecnico = await tiposTecnicoService.Listar(t => true);
+        filtrados = tiposTecnico; // Mostrar todos los tipos inicialmente
+    }
+
+    private async Task Buscar()
+    {
+        if (!string.IsNullOrWhiteSpace(ValorFiltro))
+        {
+            switch (filtro)
+            {
+                case "TipoId":
+                    if (int.TryParse(ValorFiltro, out int TipoId))
+                    {
+                        filtrados = tiposTecnico.Where(t => t.TipoId == TipoId).ToList();
+                    }
+                    break;
+
+                case "Descripcion":
+                    filtrados = tiposTecnico.Where(t => t.Descripcion.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+                    break;
+            }
+        }
+        else
+        {
+            // Si el campo de búsqueda está vacío, mostramos todos los tipos
+            filtrados = tiposTecnico;
+        }
+    }
+}
