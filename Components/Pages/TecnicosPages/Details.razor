@@ -2,21 +2,22 @@
 @page "/Tecnicos/Details/{TecnicosId:int}"
 @rendermode InteractiveServer
 @inject TecnicoService tecnico
+@inject TiposTecnicoService tipoTecnicoService
 @inject NavigationManager navigation
 
 
 <PageTitle>Detalles del t&eacute;cnico</PageTitle>
-   <div class="container">
-	   <div class="card shadow-lg">
-		   @*Header*@
-		     <div class="card-header bg-primary text-white text-center">
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header bg-primary text-white text-center">
 			<h3><strong>Detalles del t&eacute;cnico</strong></h3>
-		       </div>
-	        </div>
-	   @*Body*@
-	   <div class="card-body"> 
+		</div>
+	</div>
+	@*Body*@
+	<div class="card-body">
 		<h5><strong>Detalles del t&eacute;cnico</strong></h5>
-		@if(tecnicos != null)
+		@if (tecnicos != null)
 		{
 			@*Datos*@
 			<div class="mb-1">
@@ -27,15 +28,18 @@
 				<div class="mb-1">
 					<p class="mb-0">Sueldo por hora: @tecnicos.SueldoHora</p>
 				</div>
+				<div class="mb-1">
+					<p class="mb-0">Tipo de t&eacute;cnico: @(TipoList.FirstOrDefault(t => t.TipoId == tecnicos.TipoId)?.Descripcion ?? "No encontrado")</p>
+				</div>
 			</div>
-			
+
 		}
-	   </div>
-	   @*Footer*@
-	   <div class="card-footer">
+	</div>
+	@*Footer*@
+	<div class="card-footer">
 		<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
-	   </div>
-   </div>
+	</div>
+</div>
 
 @code {
 
@@ -43,9 +47,11 @@
 
 	public int TecnicosId { get; set; }
 	public Tecnicos tecnicos { get; set; } = new Tecnicos();
+	public List<TiposTecnicos> TipoList { get; set; } = new List<TiposTecnicos>();
 
 	protected override async Task OnInitializedAsync()
 	{
+		TipoList = await tipoTecnicoService.Listar(t => true);
 		tecnicos = await tecnico.Buscar(TecnicosId);
 	}
 
