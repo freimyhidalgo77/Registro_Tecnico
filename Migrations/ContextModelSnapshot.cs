@@ -18,9 +18,9 @@ namespace RegistroTecnicos.Migrations
 
             modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
                 {
-                    b.Property<int>("TecnicoId") 
+                    b.Property<int>("TecnicoId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");  
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("NombreTecnico")
                         .IsRequired()
@@ -29,9 +29,40 @@ namespace RegistroTecnicos.Migrations
                     b.Property<decimal>("SueldoHora")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("TecnicoId");
+                    b.Property<int>("TipoId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TecnicoId"); 
+
+                    b.HasIndex("TipoId");
 
                     b.ToTable("Tecnicos");
+                });
+
+            modelBuilder.Entity("RegistroTecnicos.Models.TiposTecnicos", b =>
+                {
+                    b.Property<int>("TipoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TipoId");
+
+                    b.ToTable("TiposTecnicos");
+                });
+
+            modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
+                {
+                    b.HasOne("RegistroTecnicos.Models.TiposTecnicos", "TipoTecnicos")
+                        .WithMany()
+                        .HasForeignKey("TipoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TipoTecnicos");
                 });
 #pragma warning restore 612, 618
         }
