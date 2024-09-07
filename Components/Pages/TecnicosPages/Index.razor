@@ -1,27 +1,30 @@
 ﻿@page "/Tecnicos/Index"
 @rendermode InteractiveServer
 @inject TecnicoService tecnicoService
+@inject TiposTecnicoService tiposTecnicosService
 @inject NavigationManager navigation
 
 <PageTitle> Registro de t&eacute;cnicos</PageTitle>
-<div class = "container card shadow-lg">
-	<div class="card-header bg-primary text-white text-center bi bi-person-gear">
+<div class="container card shadow-lg">
+	<div class="card-header bg-primary text-white text-center bi bi-person">
 		<h3><strong>Registro de t&eacute;cnicos</strong></h3>
 	</div>
 	<div class="row text-right">
 		<div class="col-md-3">
 			<label for="filtro" class="from label"><strong>Filtrar por:</strong></label>
 			<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
-				<option value="id">ID</option>
-				<option value="Nombre">Nombre del t&eacute;cnico</option>
+				<option value="TecnicoId">ID</option>
+				<option value="NombreTecnico">Nombre del t&eacute;cnico</option>
 				<option value="SueldoHora">Sueldo por hora</option>
+				<option value="Descripcion">Tipo de T&eacute;cnico</option>
 			</InputSelect> 
-	    </div>
+		</div>
 		<div class="col-md-6">
 			<label for="valorFiltro" class="form-label"><strong>B&uacute;squeda:</strong></label>
 			<div class="input-group">
 				<InputText id="valorFiltro" @bind-Value="valorFiltro" class="form-control" placeholder="Buscar" />
 				<button @onclick="Buscar" class="btn btn-success bi bi-search" type="button"> B&uacute;scar</button>
+				<span class="bi bisearch"></span>
 			</div>
 		</div>
 		<div class="col-md-3 d-flex align-items-end justify-content-md-end mt-3 mt-md-0">
@@ -29,18 +32,16 @@
 		</div>
 	</div>
 
-	 
 
-	
-	 
 	@*Tabla*@
 	<div class="card-body">
-		<table class="table table-light">
+		<table class="table table-light table-bordered">
 			<thead class="table table-striped text-center table-bordered mt-3 bg-primary text-white">
 				<tr>
 					<th>ID</th>
 					<th>Nombre T&eacute;cnico</th>
 					<th>Sueldo T&eacute;cnico</th>
+					<th>Tipo t&eacute;cnico</th>
 					<th>Ver</th>
 					<th>Editar</th>
 					<th>Eliminar</th>
@@ -50,10 +51,13 @@
 				@*Buscar detalles de tecicos(Id,Nombre,Sueldo)*@
 				@foreach (var tecnico in tecnicos)
 				{
+					var tipoTecnico = TipoList.FirstOrDefault(t => t.TipoId == tecnico.TipoId);
 					<tr>
 						<td class="text-center">@tecnico.TecnicoId</td>
 						<td class="text-center">@tecnico.NombreTecnico</td>
 						<td class="text-center">@tecnico.SueldoHora</td>
+						<td class="text-center">@(tipoTecnico?.Descripcion)</td>
+
 
 						@*Iconos*@
 						<td class="text-center">
@@ -78,47 +82,60 @@
 @code {
 
 	public List<Tecnicos> tecnicos = new List<Tecnicos>();
+	public List<TiposTecnicos> TipoList { get; set; } = new List<TiposTecnicos>();
 	public string filtro = "id";
 	public string valorFiltro = "";
 
 	protected override async Task OnInitializedAsync()
 	{
 		tecnicos = await tecnicoService.Listar(a => true);
+		TipoList = await tiposTecnicosService.Listar(a => true);
 	}
 
 	//Metodo para buscar valor mediante filtro
 	public async Task Buscar()
 	{
 		if (!string.IsNullOrWhiteSpace(valorFiltro))
-		{ 
+		{
 			switch (filtro)
 			{
-				case "id":
-					if(int.TryParse(valorFiltro, out int id))
+				case "TecnicoId":
+					if (int.TryParse(valorFiltro, out int id))
 					{
-						tecnicos = await tecnicoService.Listar(t => t.TecnicoId == id);	
+						tecnicos = await tecnicoService.Listar(t => t.TecnicoId == id);
 					}
 					break;
-
-				case "Nombre":
+					 
+				case "NombreTecnico":
 					tecnicos = await tecnicoService.Listar(t => t.NombreTecnico.ToLower().Contains(valorFiltro.ToLower()));
 					break;
 
 				case "SueldoHora":
-					if(decimal.TryParse(valorFiltro, out decimal SueldoHora))
+					if (decimal.TryParse(valorFiltro, out decimal SueldoHora))
 					{
 						tecnicos = await tecnicoService.Listar(t => t.SueldoHora == SueldoHora);
 					}
 					break;
-			   }
-	     	 }
-	        else
-			{
-				tecnicos = await tecnicoService.Listar(async => true);
-			}
 
+				case "Descripcion":
+
+					if (filtro == "Descripcion")
+					{
+						var tiposIguales = await tiposTecnicosService.Listar(t => t.Descripcion.ToLower().Contains(valorFiltro.ToLower()));
+						var tipoIdIgual = tiposIguales.Select(t => t.TipoId).ToList();
+						tecnicos = await tecnicoService.Listar(t => tipoIdIgual.Contains(t.TipoId));
+
+					}
+					break;
+			}
 		}
+		else
+		{
+			tecnicos = await tecnicoService.Listar(p => true);
+		}
+
 	}
+}
 
 
 
