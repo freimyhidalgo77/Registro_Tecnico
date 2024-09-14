@@ -17,7 +17,7 @@ namespace RegistroTecnicos.DAL
 		public DbSet<Trabajos> Trabajos { get; set; }
 
 
-
+         
 
 	}
 
