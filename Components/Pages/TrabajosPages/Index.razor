@@ -113,7 +113,7 @@
             }
             else if (filtro == "NombreCliente")
             {
-                criterio = t => t.Clientes.NombreCliente.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
+                criterio = t => t.Clientes != null && t.Clientes.NombreCliente.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
             }
             else if (filtro == "TecnicoId" && int.TryParse(ValorFiltro, out int tecnicoId))
             {
@@ -121,11 +121,11 @@
             }
             else if (filtro == "NombreTecnico")
             {
-                criterio = t => t.Tecnicos.NombreTecnico.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
+                criterio = t => t.Tecnicos != null && t.Tecnicos.NombreTecnico.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
             }
             else if (filtro == "Descripcion")
             {
-                criterio = t => t.TiposTecnicos.Descripcion.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
+                criterio = t => t.TiposTecnicos != null && t.TiposTecnicos.Descripcion.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
             }
             else if (filtro == "Monto" && decimal.TryParse(ValorFiltro, out decimal monto))
             {
@@ -133,6 +133,7 @@
             }
 
             trabajos = await trabajoService.Listar(criterio);
+            StateHasChanged(); // Forzar actualización de la UI
         }
     }
 

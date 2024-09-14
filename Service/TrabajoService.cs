@@ -75,14 +75,27 @@ namespace RegistroTecnicos.Service
 				return await Modificar(trabajos);
 		}
 
-		public async Task<bool> Eliminar(int id)
-		{
-			var trabajosEliminados = await _context.Trabajos
-				.Where(t => t.TrabajoId == id).ExecuteDeleteAsync();
-			return trabajosEliminados > 0;
-		}
+        public async Task<bool> Eliminar(int id)
+        {
+            try
+            {
+                var trabajo = await _context.Trabajos.FindAsync(id);
+                if (trabajo != null)
+                {
+                    _context.Trabajos.Remove(trabajo);
+                    return await _context.SaveChangesAsync() > 0;
+                }
+                return false; // Si no encuentra el trabajo
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al eliminar el trabajo: {ex.Message}");
+                return false; // Error en el proceso de eliminación
+            }
+        }
 
-		public async Task<Trabajos?> Buscar(int id)
+
+        public async Task<Trabajos?> Buscar(int id)
 		{
 			return await _context.Trabajos
 				.AsNoTracking()

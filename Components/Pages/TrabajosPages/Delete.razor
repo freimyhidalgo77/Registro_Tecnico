@@ -3,7 +3,6 @@
 @inject NavigationManager navigation
 
 <PageTitle>Eliminar Trabajo</PageTitle>
-
 <div class="container">
     <div class="card shadow-lg">
         <div class="card-header bg-danger text-white">
@@ -51,50 +50,55 @@
     </div>
 </div>
 
+@if (!string.IsNullOrEmpty(MensajeError))
+{
+    <div class="alert alert-danger">@MensajeError</div>
+}
+
 @code {
     [Parameter]
-    public int TrabajoId { get; set; }
-
+    public int trabajoId { get; set; }
     public Trabajos trabajo { get; set; }
     public string MensajeError { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        if (TrabajoId > 0)
+        try
         {
-            trabajo = await trabajoService.Buscar(TrabajoId);
+            if (trabajoId > 0)
+            {
+                trabajo = await trabajoService.Buscar(trabajoId);
+            }
+            else
+            {
+                trabajo = null;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            trabajo = null;
+            MensajeError = $"Error al cargar detalles: {ex.Message}";
         }
     }
 
     private async Task EliminarTrabajo()
     {
-        if (trabajo != null)
+        try
         {
-            try
+            var eliminado = await trabajoService.Eliminar(trabajo.TrabajoId);
+            if (eliminado)
             {
-                bool eliminado = await trabajoService.Eliminar(trabajo.TrabajoId);
-
-                if (eliminado)
-                {
-                    // Redirige a la página principal después de eliminar
-                    navigation.NavigateTo("/Trabajos/Index");
-                }
-                else
-                {
-                    MensajeError = "No se pudo eliminar el trabajo. Por favor, inténtalo nuevamente.";
-                }
+                navigation.NavigateTo("/Trabajos/Index");
             }
-            catch (Exception ex)
+            else
             {
-                MensajeError = $"Ocurrió un error: {ex.Message}";
+                MensajeError = "No se pudo eliminar el trabajo. Inténtelo nuevamente.";
             }
         }
+        catch (Exception ex)
+        {
+            MensajeError = $"Error al eliminar trabajo: {ex.Message}";
+        }
     }
-
 
     private void Volver()
     {
