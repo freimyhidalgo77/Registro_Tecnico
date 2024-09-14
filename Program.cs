@@ -5,7 +5,7 @@ using RegistroTecnicos.DAL;
 using RegistroTecnicos.Service;
 
 namespace RegistroTecnicos
-{
+{ 
     public class Program
     {
         public static void Main(string[] args)
