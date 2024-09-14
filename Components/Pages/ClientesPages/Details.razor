@@ -1,0 +1,54 @@
+﻿@page "/Clientes/Details"
+@page "/Clientes/Details/{ClienteId:int}"
+@inject ClienteService clienteService
+@inject NavigationManager navigation
+
+<PageTitle>Detalles del cliente</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary  text-white">
+            <h3><strong>Detalles del cliente</strong></h3>
+        </div>
+        <div class="card-body">
+            <h5><strong>Aqui los detalles del cliente seleccionado:</strong></h5>
+            @if (cliente != null)
+            {
+                <div class="mb-1">
+                    <p class="mb-0">Tipo ID: @cliente.ClienteId</p>
+                </div>
+                <div class="mb-1">
+                    <p class="mb-0">Nombre del cliente: @cliente.NombreCliente</p>
+                </div>
+            }
+
+        </div>
+        @*Footer*@
+        <div class="card-footer">
+            <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+
+    [Parameter]
+
+    public int clienteId { get; set; }
+    public Clientes cliente;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        cliente = await clienteService.Buscar(clienteId);
+
+    }
+
+    public void Volver()
+    {
+        navigation.NavigateTo("/TiposTecnicos/Index");
+    }
+
+
+}

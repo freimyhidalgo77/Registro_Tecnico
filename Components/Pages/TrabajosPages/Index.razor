@@ -1,0 +1,146 @@
+﻿@page "/Trabajos/Index"
+@rendermode InteractiveServer
+@inject TrabajoService trabajoService
+@inject ClienteService clienteService
+@inject NavigationManager navigation
+
+<PageTitle>Trabajos</PageTitle>
+<div class="container card shadow-lg">
+    <div class="card-header bg-primary text-white text-center bi bi-person-workspace">
+        <h3><strong>Trabajos</strong></h3>
+    </div>
+
+    @*Header*@
+    <div class="row mb-3 aling-items-end">
+        <div class="col-md-3">
+            <label for="Filtro" class="form-label"><strong>Filtrar por:</strong></label>
+            <InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+                <option value="" disabled>Seleccionar</option>
+                <option value="TrabajoId">Trabajo Id</option>
+                <option value="Fecha">Fecha</option>
+                <option value="ClienteId">Cliente Id</option>
+                <option value="NombreClienteId">Nombre Cliente</option>
+                <option value="TecnicoId">Tecnico Id</option>
+                <option value="NombreTecnicoId">Nombre Tecnico</option>
+                <option value="Descripcion">Descripcion</option>
+                <option value="Monto">Monto</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <label for="ValorFiltro" class="form-label"><strong>B&uacute;squeda:</strong></label>
+            <div class="input-group">
+                <input @bind="ValorFiltro" class="form-control" placeholder="Buscar" />
+                <button @onclick="Buscar" class="btn btn-success" type="button">
+                    <span class="bi bi-search"></span> Buscar
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex align-items-end justify-content-md-end mt-3 mt-md-0">
+            <a href="/Trabajos/Create" class="btn btn-success bi bi-plus-square-fill"> Crear</a>
+        </div>
+    </div>
+
+    @*Body*@
+    <div class="card-body">
+        <table class="table table-light table-bordered">
+            <thead class="table table-striped text-center table-bordered mt-3 bg-primary text-white">
+                <tr>
+                    <th>Trabajo ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente Id</th>
+                    <th>Nombre Cliente</th>
+                    <th>Tecnico Id</th>
+                    <th>Nombre Tecnico</th>
+                    <th>Descripcion</th>
+                    <th>Monto</th>
+                    <th>Ver</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var trabajo in trabajo)
+                {
+                    <tr>
+                        <td class="text-center">@trabajo.TrabajoId</td>
+                        <td class="text-center">@trabajo.Fecha</td>
+                        <td class="text-center">@trabajo.ClienteId</td>
+                        <td class="text-center">@trabajo.NombreCliente</td>
+                        <td class="text-center">@trabajo.Descripcion</td>
+                        <td class="text-center">@trabajo.TecnicoId</td>
+                        <td class="text-center">@trabajo.NombreTecnico</td>
+                        <td class="text-center">@trabajo.Monto</td>
+                        <td class="text-center">
+                            <a href="/Trabajos/Details/@trabajo.TrabajoId" class="btn btn-outline-info bi bi-eye"></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="/Trbajos/Edit/@trabajo.TrabajoId" class="btn btn-outline-warning bi bi-pencil-square"></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="/Trabajos/Delete/@trabajo.TrabajoId" class="btn btn-outline-danger bi bi-trash"></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+
+    public List<Trabajos> trabajo = new List<Trabajos>();
+    public Clientes cliente = new Clientes();
+    public TiposTecnicos tecnicos = new TiposTecnicos();
+    public Tecnicos tecnico = new Tecnicos();
+    private string filtro { get; set; } = "id";
+    private string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        trabajo = await trabajoService.Listar(t => true);
+
+
+    }
+
+    private async Task Buscar()
+    {
+        if (!string.IsNullOrWhiteSpace(ValorFiltro))
+        {
+            if (filtro == "TrabajoId" && int.TryParse(ValorFiltro, out int TrabajoId))
+            {
+                trabajo = await trabajoService.Listar(c => c.TrabajoId == TrabajoId);
+            }
+            else if (filtro == "Fecha" && DateTime.TryParse(ValorFiltro, out DateTime Fecha))
+            {
+                trabajo = await trabajoService.Listar(c => c.Fecha == Fecha);
+            }
+            else if (filtro == "ClienteId" && int.TryParse(ValorFiltro, out int ClienteId))
+            {
+                trabajo = await trabajoService.Listar(c => c.ClienteId == ClienteId);
+            }
+            else if (filtro == "NombreClienteId")
+            {
+                trabajo = await trabajoService.Listar(c => c.NombreCliente.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (filtro == "TecnicoId" && int.TryParse(ValorFiltro, out int TecnicoId))
+            {
+                trabajo = await trabajoService.Listar(c => TecnicoId == TecnicoId);
+            }
+            else if (filtro == "NombreTecnicoId")
+            {
+                trabajo = await trabajoService.Listar(c => c.NombreTecnico.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (filtro == "Descripcion")
+            {
+                trabajo = await trabajoService.Listar(c => c.Descripcion.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (filtro == "Monto" && decimal.TryParse(ValorFiltro, out decimal Monto))
+            {
+                trabajo = await trabajoService.Listar(c => c.Monto == Monto);
+            }
+
+
+        }
+    }
+}
+

@@ -1,0 +1,83 @@
+﻿@page "/Clientes/Edit/{ClienteId:int}"
+@rendermode InteractiveServer
+@inject ClienteService clienteService
+@inject NavigationManager navigation
+
+<PageTitle>Editar cliente</PageTitle>
+<EditForm Model="clientes" OnValidSubmit="Modificar">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			<div class="card-header bg-primary text-white text-center">
+				<h1><strong>Editar cliente</strong></h1>
+			</div>
+			<div class="card-body">
+				@*Atributos Tecnicos*@
+				<label for="id" class="form-label"><strong>Cliente ID</strong></label>
+				<InputNumber id="ClienteId" class="form-control" @bind-Value="clientes.ClienteId" readonly></InputNumber>
+
+				<label class="form-label"><strong>Nombre del cliente</strong></label>
+				<InputText id="NombreCliente" class="form-control" @bind-Value="clientes.NombreCliente"></InputText>
+				<ValidationMessage For="@(()=> clientes.NombreCliente)"></ValidationMessage>
+
+				<label class="form-label"><strong>Numero de Whatsapp</strong></label>
+				<InputText id="NumeroWhatsapp" class="form-control" @bind-Value="clientes.NumeroWhatsapp"></InputText>
+				<ValidationMessage For="@(()=>clientes.NumeroWhatsapp)"></ValidationMessage>
+
+			</div>
+			<div class="card-footer">
+				<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+				<button type="submit" class="btn btn-success bi bi-pencil-square"> Modificar</button>
+			</div>
+		</div>
+	</div>
+
+</EditForm>
+
+
+
+@code {
+
+	[Parameter]
+	public int ClienteId { get; set; }
+	public Clientes clientes { get; set; } = new Clientes();
+	public bool Repetido { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		if (ClienteId > 0)
+		{
+			clientes = await clienteService.Buscar(ClienteId);
+		}
+
+	}
+
+
+	public async Task<bool> Validar()
+	{
+		var existe = await clienteService.ClienteExiste(clientes.NombreCliente);
+		Repetido = existe == null;
+		return Repetido;
+
+	}
+
+	public async Task Modificar()
+	{
+		if (!await Validar())
+		{
+			await clienteService.Guardar(clientes);
+			clientes = new Clientes();
+			Volver();
+		}
+	}
+
+
+	public void Volver()
+	{
+		navigation.NavigateTo("/Clientes/Index");
+	}
+
+
+}

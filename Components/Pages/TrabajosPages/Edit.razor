@@ -1,0 +1,102 @@
+﻿@page "/Trabajos/Edit/{TecnicosId:int}"
+@rendermode InteractiveServer
+@inject TecnicoService tecnicoService
+@inject TiposTecnicoService tiposTecnicoService
+@inject NavigationManager navigation
+
+<PageTitle>Editar t&eacute;cnico</PageTitle>
+<EditForm Model="tecnicos" OnValidSubmit="Modificar">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			<div class="card-header bg-primary text-white text-center">
+				<h1><strong>Editar t&eacute;cnico</strong></h1>
+			</div>
+			<div class="card-body">
+				@*Atributos Tecnicos*@
+
+				@*Id*@
+				<label for="id" class="form-label"><strong>ID</strong></label>
+				<InputNumber id="id" class="form-control" @bind-Value="tecnicos.TecnicoId" readonly></InputNumber>
+
+				@*Nombre tecnico*@
+				<label for="NombreTecnico" class="form-label"><strong>Nombre</strong></label>
+				<InputText id="NombreTecnico" class="form-control" @bind-Value="tecnicos.NombreTecnico"></InputText>
+				<ValidationMessage For="@(()=> tecnicos.NombreTecnico)"></ValidationMessage>
+
+				@*SueldoHora*@
+				<label for="SueldoHora" class="form-label"><strong>Sueldo por hora</strong></label>
+				<InputNumber id="SueldoHora" class="form-control" @bind-Value="tecnicos.SueldoHora"></InputNumber>
+				<ValidationMessage For="@(()=> tecnicos.SueldoHora)"></ValidationMessage>
+
+				@*Descripcion*@
+				<label class="form-label"><stromng>Tipo de t&eacute;nico</stromng></label>
+				<InputSelect @bind-Value=tecnicos.TipoId class="form-control">
+					<option value="0">Seleccione el tipo de t&eacute;cnico</option>
+					@foreach (var obj in TipoList)
+					{
+						<option value="@obj.TipoId">@obj.Descripcion</option>
+					}
+				</InputSelect>
+			</div>
+			<div class="card-footer">
+				<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+				<button type="submit" class="btn btn-success bi bi-pencil-square"> Modificar</button>
+			</div>
+		</div>
+	</div>
+
+</EditForm>
+
+
+@code {
+
+	[Parameter]
+	public int TecnicosId { get; set; }
+	public Tecnicos tecnicos { get; set; } = new Tecnicos();
+	public bool Repetido { get; set; }
+	public List<TiposTecnicos> TipoList { get; set; } = new List<TiposTecnicos>();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (TecnicosId > 0)
+		{
+			tecnicos = await tecnicoService.Buscar(TecnicosId);
+		}
+		TipoList = await tiposTecnicoService.Listar(t => true);
+
+	}
+
+	//Metodo para validar
+	public async Task<bool> Validar()
+	{
+		var existe = await tecnicoService.ValidarTecnico(tecnicos.NombreTecnico);
+		Repetido = existe == null;
+		return Repetido;
+
+	}
+
+	//Metodo para modificar atributos tecnicos
+	public async Task Modificar()
+	{
+		if (!await Validar())
+		{
+			await tecnicoService.Guardar(tecnicos);
+			tecnicos = new Tecnicos();
+			Volver();
+		}
+	}
+
+	//Metodo para volver
+	public void Volver()
+	{
+		navigation.NavigateTo("/Tecnicos/Index");
+	}
+
+
+
+
+
+
+}

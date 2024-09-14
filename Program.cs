@@ -23,8 +23,10 @@ namespace RegistroTecnicos
             //Inyeccion del servicio (service)
             builder.Services.AddScoped<TecnicoService>();
             builder.Services.AddScoped<TiposTecnicoService>();
+			builder.Services.AddScoped<ClienteService>();
+			builder.Services.AddScoped<TrabajoService>();
 
-            var app = builder.Build();
+			var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

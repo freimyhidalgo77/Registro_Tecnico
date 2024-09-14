@@ -1,0 +1,78 @@
+﻿@page "/Clientes/Create"
+@rendermode InteractiveServer
+@inject ClienteService clienteService
+@inject NavigationManager navigation
+
+<PageTitle>Crear nuevo cliente</PageTitle>
+<EditForm Model="clientes" OnValidSubmit="Crear">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            @*Header*@
+            <div class="card header bg-primary text-white">
+                <h3>Crear nuevo cliente</h3>
+            </div>
+            <div class="card-body">
+                @*Cliente Id*@
+                <label class="form-label" for="id"><strong>ClienteId</strong></label>
+                <InputNumber id="ClienteId" class="form-control" @bind-Value="clientes.ClienteId" readonly></InputNumber>
+
+                @*Nombre*@
+                <label class="form-label" for="NombreCliente"><strong>Nombre del cliente</strong></label>
+                <InputText id="Descripcion" class="form-control" @bind-Value="clientes.NombreCliente"></InputText>
+                <ValidationMessage For="@(() => clientes.NombreCliente)"></ValidationMessage>
+
+                @*Numero de Whatsapp*@
+                <label class="form-label" for="NumeroWhatsapp"><strong>Numero de whatsapp</strong></label>
+                <InputText id="NumeroWhatsapp" class="form-control" @bind-Value="clientes.NumeroWhatsapp" @oninput="FormatoNumero"></InputText>
+                <ValidationMessage For="@(() => clientes.NumeroWhatsapp)"></ValidationMessage>
+            </div>
+
+            @*Footer*@
+            <div class="card-footer">
+                <button type="button" class="btn btn-secondary bi bgi arrow-left" @onclick="Volver"> Volver</button>
+                <button type="submit" class="btn btn-success bi bi-pencil-fill"> Guardar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Clientes clientes { get; set; } = new Clientes();
+
+    public async Task Crear()
+    {
+        if (!await Validar())
+        {
+            await clienteService.Guardar(clientes);
+            clientes = new Clientes();
+            navigation.NavigateTo("/Clientes/Index");
+        }
+    }
+
+    public async Task<bool> Validar()
+    {
+        return await clienteService.ClienteExiste(clientes.NombreCliente);
+    }
+
+    public void Volver()
+    {
+        navigation.NavigateTo("/Clientes/Index");
+    }
+
+    public void FormatoNumero(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString();
+        if (input != null && input.Length > 0)
+        {
+            input = input.Replace("-", ""); // Eliminar cualquier guion existente
+            if (input.Length > 6)
+                clientes.NumeroWhatsapp = $"{input.Substring(0, 3)}-{input.Substring(3, 3)}-{input.Substring(6)}";
+            else if (input.Length > 3)
+                clientes.NumeroWhatsapp = $"{input.Substring(0, 3)}-{input.Substring(3)}";
+            else
+                clientes.NumeroWhatsapp = input;
+        }
+    }
+}
