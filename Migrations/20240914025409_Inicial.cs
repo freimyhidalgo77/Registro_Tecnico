@@ -20,7 +20,7 @@ namespace RegistroTecnicos.Migrations
                     NombreCliente = table.Column<string>(type: "TEXT", nullable: false),
                     NumeroWhatsapp = table.Column<string>(type: "TEXT", nullable: false)
                 },
-                constraints: table =>
+                constraints: table => 
                 {
                     table.PrimaryKey("PK_Clientes", x => x.ClienteId);
                 });
