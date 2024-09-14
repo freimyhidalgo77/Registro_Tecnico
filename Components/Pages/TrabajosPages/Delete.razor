@@ -63,41 +63,22 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            if (trabajoId > 0)
-            {
-                trabajo = await trabajoService.Buscar(trabajoId);
-            }
-            else
-            {
-                trabajo = null;
-            }
-        }
-        catch (Exception ex)
-        {
-            MensajeError = $"Error al cargar detalles: {ex.Message}";
-        }
+        
+      
+       trabajo = await trabajoService.Buscar(trabajoId);
+                
+      
     }
 
     private async Task EliminarTrabajo()
     {
-        try
-        {
+        
             var eliminado = await trabajoService.Eliminar(trabajo.TrabajoId);
             if (eliminado)
             {
-                navigation.NavigateTo("/Trabajos/Index");
+                Volver();
             }
-            else
-            {
-                MensajeError = "No se pudo eliminar el trabajo. Inténtelo nuevamente.";
-            }
-        }
-        catch (Exception ex)
-        {
-            MensajeError = $"Error al eliminar trabajo: {ex.Message}";
-        }
+           
     }
 
     private void Volver()
@@ -105,3 +86,4 @@
         navigation.NavigateTo("/Trabajos/Index");
     }
 }
+
