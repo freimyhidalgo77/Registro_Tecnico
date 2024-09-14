@@ -84,7 +84,7 @@ namespace RegistroTecnicos.Service
                 {
                     _context.Trabajos.Remove(trabajo);
                     return await _context.SaveChangesAsync() > 0;
-                }
+                } 
                 return false; // Si no encuentra el trabajo
             }
             catch (Exception ex)
