@@ -1,54 +1,76 @@
-﻿@page "/Trabajos/Details"
-@page "/Trabajos/Details/{TecnicosId:int}"
-@inject TiposTecnicoService tipoTecnicoService
+﻿@page "/Trabajos/Details/{TrabajoId:int}"
+@inject TrabajoService trabajoService
 @inject NavigationManager navigation
 
-<PageTitle>Detalles del t&eacute;nico</PageTitle>
+<PageTitle>Detalles del Trabajo</PageTitle>
+
 <div class="container">
     <div class="card shadow-lg">
-        <div class="card-header bg-primary  text-white">
-            <h3><strong>Detalles del tipo de t&eacute;nico</strong></h3>
+        <div class="card-header bg-primary text-white">
+            <h3><strong>Detalles del Trabajo</strong></h3>
         </div>
         <div class="card-body">
-            <h5><strong>Aqui los detalles del tipo de t&eacute;cnico seleccionado:</strong></h5>
-            @if (tecnico != null)
+            @if (trabajo != null)
             {
-                <div class="mb-1">
-                    <p class="mb-0">Tipo ID: @tecnico.TipoId</p>
-                </div>
-                <div class="mb-1">
-                    <p class="mb-0">Descripci&oacute;n: @tecnico.Descripcion</p>
+                <div class="mb-3">
+                    <h5><strong>Detalles del trabajo seleccionado:</strong></h5>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Trabajo ID:</strong> @trabajo.TrabajoId</p>
+                    </div>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Fecha:</strong> @trabajo.Fecha.ToShortDateString()</p>
+                    </div>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Cliente ID:</strong> @trabajo.ClienteId</p>
+                    </div>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Nombre Cliente:</strong> @trabajo.Clientes?.NombreCliente</p>
+                    </div>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Tecnico ID:</strong> @trabajo.TecnicoId</p>
+                    </div>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Nombre Tecnico:</strong> @trabajo.Tecnicos?.NombreTecnico</p>
+                    </div>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Descripción:</strong> @trabajo.TiposTecnicos?.Descripcion</p>
+                    </div>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Monto:</strong> @trabajo.Monto.ToString("C")</p>
+                    </div>
                 </div>
             }
-
+            else
+            {
+                <p>No se encontraron detalles para el trabajo seleccionado.</p>
+            }
         </div>
-        @*Footer*@
         <div class="card-footer">
             <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
         </div>
     </div>
 </div>
 
-
-
 @code {
-
     [Parameter]
+    public int TrabajoId { get; set; }
 
-    public int tecnicosId { get; set; }
-    public TiposTecnicos tecnico;
+    public Trabajos trabajo { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-
-        tecnico = await tipoTecnicoService.Buscar(tecnicosId);
-
+        if (TrabajoId > 0)
+        {
+            trabajo = await trabajoService.Buscar(TrabajoId);
+        }
+        else
+        {
+            trabajo = null;
+        }
     }
 
-    public void Volver()
+    private void Volver()
     {
-        navigation.NavigateTo("/TiposTecnicos/Index");
+        navigation.NavigateTo("/Trabajos/Index");
     }
-
-
 }

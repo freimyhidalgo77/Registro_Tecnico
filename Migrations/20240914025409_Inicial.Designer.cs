@@ -11,7 +11,7 @@ using RegistroTecnicos.DAL;
 namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240913164438_Inicial")]
+    [Migration("20240914025409_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -77,7 +77,7 @@ namespace RegistroTecnicos.Migrations
                     b.ToTable("TiposTecnicos");
                 });
 
-            modelBuilder.Entity("RegistroTecnicos.Models.Trabajos", b =>
+            modelBuilder.Entity("Trabajos", b =>
                 {
                     b.Property<int>("TrabajoId")
                         .ValueGeneratedOnAdd()
@@ -86,38 +86,25 @@ namespace RegistroTecnicos.Migrations
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ClientesClienteId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Monto")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("NombreCliente")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NombreTecnico")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("TecnicoId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TecnicosTecnicoId")
+                    b.Property<int>("TipoId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("TrabajoId");
 
-                    b.HasIndex("ClientesClienteId");
+                    b.HasIndex("ClienteId");
 
-                    b.HasIndex("TecnicosTecnicoId");
+                    b.HasIndex("TecnicoId");
+
+                    b.HasIndex("TipoId");
 
                     b.ToTable("Trabajos");
                 });
@@ -133,23 +120,31 @@ namespace RegistroTecnicos.Migrations
                     b.Navigation("TipoTecnicos");
                 });
 
-            modelBuilder.Entity("RegistroTecnicos.Models.Trabajos", b =>
+            modelBuilder.Entity("Trabajos", b =>
                 {
                     b.HasOne("RegistroTecnicos.Models.Clientes", "Clientes")
                         .WithMany()
-                        .HasForeignKey("ClientesClienteId")
+                        .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RegistroTecnicos.Models.Tecnicos", "Tecnicos")
                         .WithMany()
-                        .HasForeignKey("TecnicosTecnicoId")
+                        .HasForeignKey("TecnicoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RegistroTecnicos.Models.TiposTecnicos", "TiposTecnicos")
+                        .WithMany()
+                        .HasForeignKey("TipoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Clientes");
 
                     b.Navigation("Tecnicos");
+
+                    b.Navigation("TiposTecnicos");
                 });
 #pragma warning restore 612, 618
         }

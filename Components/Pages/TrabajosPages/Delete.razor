@@ -1,69 +1,103 @@
 ﻿@page "/Trabajos/Delete/{TrabajoId:int}"
-@rendermode InteractiveServer
-@inject TecnicoService tecnicoService
+@inject TrabajoService trabajoService
 @inject NavigationManager navigation
 
-<PageTitle>Eliminar T&eacute;cnico</PageTitle>
-<EditForm Model="tecnicos" OnValidSubmit="EliminarTecnico">
-	<DataAnnotationsValidator />
-	<div class="card-shadow-lg">
-		<div class="card-header bg-primary text-white text-center">
-			<h4><strong>Eliminar t&eacute;cnico</strong></h4>
-		</div>
-		<div class="card-body">
-			<h6><strong>¿Est&aacute;s seguro que quieres eliminar este t&eacute;cnico?</strong></h6>
-			<div class="mb-1"></div>
-			<p class="mb-0">T&eacute;cnico ID: @tecnicos.TecnicoId</p>
-			<div class="mb-1">
-				<p class="mb-0">Nombre del t&eacute;cnico: @tecnicos.NombreTecnico</p>
-				<div class="mb-1">
-					<p class="mb-0"> Sueldo por hora: @tecnicos.SueldoHora</p>
-					<div class="mb-1">
-					</div>
-				</div>
+<PageTitle>Eliminar Trabajo</PageTitle>
 
-				<div class="card-footer">
-					<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick=Volver> Volver</button>
-					<button type="button" class="btn btn-danger bi bi-trash" @onclick=EliminarTecnico> Eliminar</button>
-				</div>
-			</div>
-		</div>
-	</div>
-</EditForm>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header bg-danger text-white">
+            <h3><strong>Eliminar Trabajo</strong></h3>
+        </div>
+        <div class="card-body">
+            @if (trabajo != null)
+            {
+                <h5><strong>¿Estás seguro que quieres eliminar este trabajo?</strong></h5>
+                <div class="mb-1">
+                    <p><strong>Trabajo ID:</strong> @trabajo.TrabajoId</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Fecha:</strong> @trabajo.Fecha.ToShortDateString()</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Cliente ID:</strong> @trabajo.ClienteId</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Nombre Cliente:</strong> @trabajo.Clientes?.NombreCliente</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Técnico ID:</strong> @trabajo.TecnicoId</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Nombre Técnico:</strong> @trabajo.Tecnicos?.NombreTecnico</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Descripción:</strong> @trabajo.TiposTecnicos?.Descripcion</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Monto:</strong> @trabajo.Monto.ToString("C")</p>
+                </div>
 
-
+                <div class="card-footer">
+                    <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+                    <button type="button" class="btn btn-danger bi bi-trash" @onclick="EliminarTrabajo"> Eliminar</button>
+                </div>
+            }
+            else
+            {
+                <p>No se encontraron detalles para el trabajo seleccionado.</p>
+            }
+        </div>
+    </div>
+</div>
 
 @code {
+    [Parameter]
+    public int TrabajoId { get; set; }
 
-	[Parameter]
-	public int TecnicosId { get; set; }
-	public Tecnicos tecnicos { get; set; } = new Tecnicos();
+    public Trabajos trabajo { get; set; }
+    public string MensajeError { get; set; } = string.Empty;
 
-	protected override async Task OnInitializedAsync()
-	{
-		if (TecnicosId > 0)
-		{
-			tecnicos = (await tecnicoService.Buscar(TecnicosId));
-		}
+    protected override async Task OnInitializedAsync()
+    {
+        if (TrabajoId > 0)
+        {
+            trabajo = await trabajoService.Buscar(TrabajoId);
+        }
+        else
+        {
+            trabajo = null;
+        }
+    }
 
-	}
+    private async Task EliminarTrabajo()
+    {
+        if (trabajo != null)
+        {
+            try
+            {
+                bool eliminado = await trabajoService.Eliminar(trabajo.TrabajoId);
 
-	public async Task EliminarTecnico()
-	{
-		var eliminar = await tecnicoService.Eliminar(tecnicos.TecnicoId);
+                if (eliminado)
+                {
+                    // Redirige a la página principal después de eliminar
+                    navigation.NavigateTo("/Trabajos/Index");
+                }
+                else
+                {
+                    MensajeError = "No se pudo eliminar el trabajo. Por favor, inténtalo nuevamente.";
+                }
+            }
+            catch (Exception ex)
+            {
+                MensajeError = $"Ocurrió un error: {ex.Message}";
+            }
+        }
+    }
 
-		if (eliminar)
-		{
-			Volver();
-		}
 
-	}
-
-	public void Volver()
-	{
-		navigation.NavigateTo("/Tecnicos/Index");
-	}
-
-
-
+    private void Volver()
+    {
+        navigation.NavigateTo("/Trabajos/Index");
+    }
 }

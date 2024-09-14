@@ -68,27 +68,29 @@ namespace RegistroTecnicos.Migrations
                     Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     TecnicoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    NombreCliente = table.Column<string>(type: "TEXT", nullable: false),
-                    NombreTecnico = table.Column<string>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    Monto = table.Column<decimal>(type: "TEXT", nullable: false),
-                    ClientesClienteId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TecnicosTecnicoId = table.Column<int>(type: "INTEGER", nullable: false)
+                    TipoId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Monto = table.Column<decimal>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Trabajos", x => x.TrabajoId);
                     table.ForeignKey(
-                        name: "FK_Trabajos_Clientes_ClientesClienteId",
-                        column: x => x.ClientesClienteId,
+                        name: "FK_Trabajos_Clientes_ClienteId",
+                        column: x => x.ClienteId,
                         principalTable: "Clientes",
                         principalColumn: "ClienteId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Trabajos_Tecnicos_TecnicosTecnicoId",
-                        column: x => x.TecnicosTecnicoId,
+                        name: "FK_Trabajos_Tecnicos_TecnicoId",
+                        column: x => x.TecnicoId,
                         principalTable: "Tecnicos",
                         principalColumn: "TecnicoId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Trabajos_TiposTecnicos_TipoId",
+                        column: x => x.TipoId,
+                        principalTable: "TiposTecnicos",
+                        principalColumn: "TipoId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -98,14 +100,19 @@ namespace RegistroTecnicos.Migrations
                 column: "TipoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Trabajos_ClientesClienteId",
+                name: "IX_Trabajos_ClienteId",
                 table: "Trabajos",
-                column: "ClientesClienteId");
+                column: "ClienteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Trabajos_TecnicosTecnicoId",
+                name: "IX_Trabajos_TecnicoId",
                 table: "Trabajos",
-                column: "TecnicosTecnicoId");
+                column: "TecnicoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Trabajos_TipoId",
+                table: "Trabajos",
+                column: "TipoId");
         }
 
         /// <inheritdoc />
