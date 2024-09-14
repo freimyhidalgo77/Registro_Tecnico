@@ -20,7 +20,7 @@ namespace RegistroTecnicos.Service
 		{
 			return await _context.Clientes.AnyAsync(t => t.ClienteId == id);
 		}
-
+		 
 		private async Task<bool> Insertar(Clientes clientes)
 		{
 			_context.Clientes.Add(clientes);
