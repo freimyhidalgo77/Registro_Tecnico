@@ -29,3 +29,4 @@ public class Trabajos
 	public Tecnicos Tecnicos { get; set; }
 	public TiposTecnicos TiposTecnicos { get; set; }
 }
+ 
