@@ -9,8 +9,7 @@
             <h3><strong>Eliminar Trabajo</strong></h3>
         </div>
         <div class="card-body">
-            @if (trabajo != null)
-            {
+            
                 <h5><strong>¿Estás seguro que quieres eliminar este trabajo?</strong></h5>
                 <div class="mb-1">
                     <p><strong>Trabajo ID:</strong> @trabajo.TrabajoId</p>
@@ -39,21 +38,12 @@
 
                 <div class="card-footer">
                     <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
-                    <button type="button" class="btn btn-danger bi bi-trash" @onclick="EliminarTrabajo"> Eliminar</button>
+                    <button type="button" class="btn btn-danger bi bi-trash" @onclick=EliminarTrabajo> Eliminar</button>
                 </div>
-            }
-            else
-            {
-                <p>No se encontraron detalles para el trabajo seleccionado.</p>
-            }
         </div>
     </div>
 </div>
 
-@if (!string.IsNullOrEmpty(MensajeError))
-{
-    <div class="alert alert-danger">@MensajeError</div>
-}
 
 @code {
     [Parameter]
