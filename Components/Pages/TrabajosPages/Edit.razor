@@ -133,14 +133,14 @@
     {
         if (clientes != null)
         {
-            string mensaje = $"Hola, he actualizado los detalles del técnico {tecnicos.NombreTecnico}.";
+            string mensaje = $"Su solicitud se ha actualizado con los detalles del técnico {tecnicos.NombreTecnico}.";
             string conexion = Uri.EscapeDataString(mensaje);
             string URLwhats = $"https://wa.me/{clientes.NumeroWhatsapp}?text={conexion}";
             await JS.InvokeVoidAsync("open", URLwhats, "_blank");
         }
     }
 
-
+     
 
     public void Volver()
     {
