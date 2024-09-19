@@ -1,0 +1,65 @@
+﻿@page "/Prioridades/Create"
+@rendermode InteractiveServer
+@inject PrioridadesService prioridadesService
+@inject NavigationManager navigation
+
+<PageTitle>Crear Prioridades</PageTitle>
+<EditForm Model="prioridades" OnValidSubmit="Crear">
+	<DataAnnotationsValidator/>
+	<div class="container">
+		<div class="card shadow-lg">
+
+			@*Header*@
+			<div class="card accordion-header bg-primary text-white">
+				<h3>Crear nueva prioridad</h3>
+			</div>
+			<div class="card-body">
+				<label class="form-label"><strong>Prioridad ID</strong></label>
+				<InputNumber id="PrioridadId" class="form-control" @bind-Value=prioridades.PrioridadId readonly></InputNumber>
+
+				<label class="form-label"><strong>Descripcion</strong></label>
+				<InputText id="Descripcion"class="form-control" @bind-Value=prioridades.Descripcion></InputText>
+				<ValidationMessage For="@(()=>prioridades.Descripcion)"></ValidationMessage>
+
+				<label class="form-label"><strong>Tiempo</strong></label>
+				<InputNumber id="Tiempo" class="form-control" @bind-Value=prioridades.Tiempo></InputNumber>
+				<ValidationMessage For="@(()=>prioridades.PrioridadId)"></ValidationMessage>
+			</div>
+			<div class="card-footer">
+				<button type="button" class="btn btn-secondary bi bi-arrow-left" @onclick=Volver> Volver</button>
+				<button type="submit" class="btn btn-success bi bi-pencil-fill"> Guardar</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+   
+
+
+
+
+@code {
+
+	public Prioridades prioridades { get; set; } = new Prioridades();
+
+	public async Task Crear()
+	{
+		if(!await Validar())
+		{
+			await prioridadesService.Guardar(prioridades);
+			prioridades = new Prioridades();
+			Volver();
+		}
+	}
+
+	public async Task<bool> Validar()
+	{
+		return await prioridadesService.PrioridadExiste(prioridades.PrioridadId);
+	}
+
+	public void Volver()
+	{
+		navigation.NavigateTo("/Prioridades/index");
+
+	}
+
+}
