@@ -1,0 +1,68 @@
+﻿@page "/Prioridades/Delete"
+@page "/Prioridades/Delete/{PrioridadId:int}"
+@rendermode InteractiveServer
+@inject PrioridadesService prioridadesService
+@inject NavigationManager navigation
+
+<PageTitle>Eliminar Prioridad</PageTitle>
+<EditForm Model="prioridades" OnInvalidSubmit="EliminarPrioridad">
+	<DataAnnotationsValidator/>
+
+	<div class="card-header bg-primary text-white text-center">
+		<h3><strong>Eliminar prioridad</strong></h3>
+	</div>
+	<div class="card-body">
+		<h6><strong>Est&aacute;s seguro de que quieres eliminar esta propiedad?</strong></h6>
+		<div class="mb-1">
+			<p class="mb-0">Prioridad ID: @prioridades.PrioridadId</p>
+		</div>
+		<div class="mb-1">
+			<p class="mb-0">Descripcion: @prioridades.Descripcion</p>
+		</div>
+		<div cass="mb-1">
+			<p class="mb-0">Tiempo: @prioridades.Tiempo</p>
+		</div>
+	</div>
+	<div class="card-footer">
+		<button type="button" class="btn btn-secondary bi bi-arrow-90deg-left" @onclick=Volver> Volver</button>
+        <button type="button" class="btn btn-danger bi bi-trash" @onclick=EliminarPrioridad> Eliminar</button>
+	</div>
+
+</EditForm>
+
+
+ 
+
+
+@code {
+
+	[Parameter]
+	public int prioridadId { get; set; }
+	public Prioridades prioridades { get; set; } = new Prioridades();
+
+
+	protected override  async Task OnInitializedAsync()
+	{
+		if(prioridadId > 0)
+		{
+			prioridades = (await prioridadesService.Buscar(prioridadId));
+		}
+
+	}
+
+	public async Task EliminarPrioridad()
+	{
+		var eliminar = await prioridadesService.Eliminar(prioridades.PrioridadId);
+		if (eliminar)
+		{
+			Volver();
+		}
+	}
+
+	public void Volver()
+	{
+		navigation.NavigateTo("/Prioridades/Index");
+	}
+
+
+}
