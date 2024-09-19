@@ -1,0 +1,54 @@
+﻿@page "/Prioridades/Details"
+@page "/Prioridades/Details/{PrioridadId:int}"
+@inject PrioridadesService prioridadesService
+@inject NavigationManager navigation
+
+<PageTitle>Detalles de la prioridad</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		<div class="card-header bg-primary text-white">
+			<h3><strong>Detalles de la prioridad</strong></h3>
+		</div>
+		<div class="card-body">
+			<h5><strong>Aqui los detalles de la prioridad seleccionada:</strong></h5>
+			@if(prioridades != null)
+			{
+				<div class="mb-1">
+					<p class="mb-0">Prioridad ID: @prioridades.PrioridadId</p>
+				</div>
+				<div class="mb-1">
+					<p class="mb-0">Descripcion: @prioridades.Descripcion</p>
+				</div>
+				<div class="mb-1">
+					<p class="mb-0">Tiempo: @prioridades.Tiempo</p>
+				</div>
+			}
+		</div>
+		<div class="card-footer">
+			<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick=Volver> Volver</button>
+		</div>
+	</div>
+</div>
+
+ 
+
+@code {
+
+	[Parameter]
+
+	public int prioridadId { get; set; }
+	public Prioridades prioridades { get; set; } = new Prioridades();
+
+	protected override async Task OnInitializedAsync()
+	{
+		prioridades = await prioridadesService.Buscar(prioridadId);
+		
+	}
+
+
+	public void Volver()
+	{
+		navigation.NavigateTo("/Prioridades/Index");
+	}
+
+}
