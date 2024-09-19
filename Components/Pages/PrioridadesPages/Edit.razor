@@ -1,0 +1,80 @@
+﻿@page "/Prioridades/Edit/{PrioridadesId:int}"
+@inject PrioridadesService prioridadesService
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+
+<PageTitle>Editar prioridad</PageTitle>
+<EditForm Model="prioridades" OnValidSubmit="Modificar">
+	<DataAnnotationsValidator/>
+	<div class="container">
+		<div class="card shadow-lg">
+			<div class="card accordion-header bg-primary text-white text-center">
+			  <h1><strong>Editar Prioridad</strong></h1>
+		</div>
+		<div class="card-body">
+			@*Atributos prioridades*@
+			<label for="id" class="form-label"><strong>Prioridad Id</strong></label>
+			<InputNumber id="PrioridadId" class="form-control" @bind-Value=prioridades.PrioridadId readonly> </InputNumber>
+
+           <label class="form-label"><strong>Descripcion</strong></label>
+		   <InputText id="Descripcion" class="form-control" @bind-Value=prioridades.Descripcion></InputText>
+		   <ValidationMessage For="@(()=> prioridades.Descripcion)"></ValidationMessage>
+
+		   <label class="form-label"><strong>Tiempo</strong></label>
+		   <InputNumber id="Tiempo" class="form-control" @bind-Value=prioridades.Tiempo></InputNumber>
+		   <ValidationMessage For="@(()=>prioridades.Tiempo)"></ValidationMessage>
+		</div>
+		<div class="card-footer">
+			<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick=Volver> Volver</button>
+			<button type="submit" class="btn btn-success bi bi-pencil-square"> Modificar</button>
+		</div>
+	</div>
+</div>
+</EditForm>
+
+
+@code {
+
+	[Parameter]
+	public int PrioridadesId { get; set; }
+	public Prioridades prioridades { get; set; } = new Prioridades();
+	public bool Repetido { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (PrioridadesId > 0)
+		{
+			prioridades = await prioridadesService.Buscar(PrioridadesId);
+
+		}
+	}
+
+	public async Task<bool> Validar()
+	{
+		var existe = await prioridadesService.PrioridadExiste(prioridades.PrioridadId);
+		Repetido = existe == null;
+		return Repetido;
+
+	}
+
+	public async Task Modificar()
+	{
+		if(!await Validar())
+		{
+			await prioridadesService.Guardar(prioridades);
+			prioridades = new Prioridades();
+			Volver();
+		}
+
+	}
+
+	public void Volver()
+	{
+		navigation.NavigateTo("/Prioridades/Index");
+	}
+
+
+
+
+}
