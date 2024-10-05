@@ -11,22 +11,32 @@ public class Trabajos
 	public DateTime Fecha { get; set; }
 
 	[ForeignKey("Clientes")]
-	[Required(ErrorMessage = "Favor seleccionar un id para el cliente")]
 	public int ClienteId { get; set; }
-
-	[ForeignKey("Tecnicos")]
-	[Required(ErrorMessage = "Favor seleccionar un id para el técnico")]
-	public int TecnicoId { get; set; }
-
-	[ForeignKey("TiposTecnicos")]
-	[Required(ErrorMessage = "Favor seleccionar un tipo de trabajo")]
-	public int TipoId { get; set; }
-
-	[Required(ErrorMessage = "Favor llenar el campo monto")]
-	public decimal Monto { get; set; }
-
 	public Clientes Clientes { get; set; }
-	public Tecnicos Tecnicos { get; set; }
-	public TiposTecnicos TiposTecnicos { get; set; }
+
+
+    [ForeignKey("Tecnicos")]
+	public int TecnicoId { get; set; }
+    public Tecnicos Tecnicos { get; set; }
+
+
+    [ForeignKey("TiposTecnicos")]
+    public int TipoId { get; set; }
+    public TiposTecnicos TiposTecnicos { get; set; }
+
+
+    [ForeignKey("Prioridades")]
+    public int PrioridadId { get; set; }
+    public Prioridades Prioridades { get; set; }
+
+
+    [Required(ErrorMessage = "Favor llenar el campo monto")]
+    public decimal Monto { get; set; }
+
+	
+
+
+
+
 }
  
