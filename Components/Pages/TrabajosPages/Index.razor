@@ -1,12 +1,13 @@
 ﻿@page "/Trabajos/Index"
 @using System.Linq.Expressions
 @inject TrabajoService trabajoService
+@inject PrioridadesService prioridadesService
 @inject NavigationManager navigation
 
 <PageTitle>Trabajos</PageTitle>
 
 <div class="container card shadow-lg">
-    <div class="card-header bg-primary text-white text-center bi bi-person-workspace"> 
+    <div class="card-header bg-primary text-white text-center bi bi-person-workspace">
         <h3><strong>Trabajos</strong></h3>
     </div>
 
@@ -51,31 +52,44 @@
                     <th>Tecnico</th>
                     <th>Descripcion</th>
                     <th>Monto</th>
+                    <th>Prioridad</th>
                     <th>Ver</th>
                     <th>Editar</th>
                     <th>Eliminar</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var trabajo in trabajos)
+                @if (trabajos != null && trabajos.Any())
+                {
+                    @foreach (var trabajo in trabajos)
+                    {
+                    
+                        <tr>
+                            <td class="text-center">@trabajo.TrabajoId</td>
+                            <td class="text-center">@trabajo.Fecha.ToShortDateString()</td>
+                            <td class="text-center">@trabajo.Clientes?.NombreCliente </td>
+                            <td class="text-center">@trabajo.Tecnicos?.NombreTecnico </td>
+                            <td class="text-center">@trabajo.TiposTecnicos?.Descripcion </td>
+                            <td class="text-center">@trabajo.Monto.ToString("C")</td>
+                            <td class="text-center">@trabajo.Prioridades?.descripcion </td>
+                           
+
+                            <td class="text-center">
+                                <a href="/Trabajos/Details/@trabajo.TrabajoId" class="btn btn-outline-info bi bi-eye"></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Trabajos/Edit/@trabajo.TrabajoId" class="btn btn-outline-warning bi bi-pencil-square"></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Trabajos/Delete/@trabajo.TrabajoId" class="btn btn-outline-danger bi bi-trash"></a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td class="text-center">@trabajo.TrabajoId</td>
-                        <td class="text-center">@trabajo.Fecha.ToShortDateString()</td>
-                        <td class="text-center">@trabajo.Clientes?.NombreCliente</td>
-                        <td class="text-center">@trabajo.Tecnicos?.NombreTecnico</td>
-                        <td class="text-center">@trabajo.TiposTecnicos?.Descripcion</td>
-                        <td class="text-center">@trabajo.Monto.ToString("C")</td>
-                        <td class="text-center">
-                            <a href="/Trabajos/Details/@trabajo.TrabajoId" class="btn btn-outline-info bi bi-eye"></a>
-                        </td>
-                        <td class="text-center">
-                            <a href="/Trabajos/Edit/@trabajo.TrabajoId" class="btn btn-outline-warning bi bi-pencil-square"></a>
-                        </td>
-                        <td class="text-center">
-                            <a href="/Trabajos/Delete/@trabajo.TrabajoId" class="btn btn-outline-danger bi bi-trash"></a>
-                        </td>
-
+                        <td colspan="10" class="text-center">No se encontraron trabajos.</td>
                     </tr>
                 }
             </tbody>
@@ -85,12 +99,21 @@
 
 @code {
     private List<Trabajos> trabajos = new List<Trabajos>();
+    private List<Prioridades> prioridadesList = new List<Prioridades>();
     private string filtro { get; set; } = string.Empty;
     private string ValorFiltro { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        trabajos = await trabajoService.Listar(t => true);
+        try
+        {
+            trabajos = await trabajoService.Listar(t => true);
+            prioridadesList = await prioridadesService.Listar(t => true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando datos: {ex.Message}");
+        }
     }
 
     private async Task Buscar()
@@ -134,15 +157,6 @@
 
             trabajos = await trabajoService.Listar(criterio);
             StateHasChanged(); // Forzar actualización de la UI
-        }
-    }
-
-    private async Task Eliminar(int trabajoId)
-    {
-        var confirm = await trabajoService.Eliminar(trabajoId);
-        if (confirm)
-        {
-            trabajos = await trabajoService.Listar(t => true);
         }
     }
 }
