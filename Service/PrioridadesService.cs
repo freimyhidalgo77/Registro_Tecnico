@@ -70,7 +70,7 @@ namespace RegistroTecnicos.Service
         public async Task<Prioridades?> BuscarPrioridad(string descripcion)
         {
             return await _context.Prioridades.AsNoTracking()
-                .FirstOrDefaultAsync(t => t.Descripcion == descripcion);
+                .FirstOrDefaultAsync(t => t.descripcion == descripcion);
 
         }
 
