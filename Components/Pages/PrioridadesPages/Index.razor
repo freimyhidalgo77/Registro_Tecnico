@@ -48,11 +48,11 @@
 	     </tr>
 	   </thead>
 	   <tbody>
-		   @foreach(var prioridades in prioridades)
+		   @foreach(var prioridades in prioridades) 
 			{
 				<tr>
 					<td class="text-center">@prioridades.PrioridadId</td>
-					<td class="text-center">@prioridades.Descripcion</td>
+					<td class="text-center">@prioridades.descripcion</td>
 					<td class="text-center">@prioridades.Tiempo (Minutos)</td>
 				    <td class="text-center">
 					    <a href="/Prioridades/Details/@prioridades.PrioridadId" class="btn btn-outline-info bi bi-eye"></a>
@@ -98,7 +98,7 @@
 					break;
 
 				case "Descripcion":
-					prioridades = await prioridadesService.Listar(t => t.Descripcion.ToLower().Contains(ValorFiltro.ToLower()));
+					prioridades = await prioridadesService.Listar(t => t.descripcion.ToLower().Contains(ValorFiltro.ToLower()));
 					break;
 
 				case "Tiempo":
