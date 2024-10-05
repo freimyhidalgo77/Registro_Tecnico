@@ -18,10 +18,10 @@
 				<InputNumber id="PrioridadId" class="form-control" @bind-Value=prioridades.PrioridadId readonly></InputNumber>
 
 				<label class="form-label"><strong>Descripcion</strong></label>
-				<InputText id="Descripcion"class="form-control" @bind-Value=prioridades.Descripcion></InputText>
-				<ValidationMessage For="@(()=>prioridades.Descripcion)"></ValidationMessage>
+				<InputText id="Descripcion"class="form-control" @bind-Value=prioridades.descripcion></InputText>
+				<ValidationMessage For="@(()=>prioridades.descripcion)"></ValidationMessage>
 
-				<label class="form-label"><strong>Tiempo</strong></label>
+				<label class="form-label"><strong>Tiempo</strong></label>       
 				<InputNumber id="Tiempo" class="form-control" @bind-Value=prioridades.Tiempo></InputNumber>
 				<ValidationMessage For="@(()=>prioridades.PrioridadId)"></ValidationMessage>
 			</div>
