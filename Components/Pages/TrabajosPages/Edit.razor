@@ -5,6 +5,7 @@
 @inject TiposTecnicoService tiposTecnicoService
 @inject ClienteService clienteService
 @inject NavigationManager navigation
+@inject PrioridadesService prioridadesService
 @inject IJSRuntime JS
 
 
@@ -74,6 +75,15 @@
             <InputNumber id="Monto" class="form-control" @bind-Value="trabajo.Monto"></InputNumber>
             <ValidationMessage For="@(() => trabajo.Monto)"></ValidationMessage>
 
+            <label class="form-label"><strong>Prioridad de Trabajo:</strong></label>
+            <InputSelect @bind-Value="trabajo.PrioridadId" class="form-control">
+                <option value="0">Seleccione la prioridad del trabajo</option>
+                @foreach (var prioridad in prioridadesList)
+                {
+                    <option value="@prioridad.PrioridadId">@prioridad.descripcion</option>
+                }
+            </InputSelect>
+
             <div class="card-footer">
                 <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
                 <button type="submit" class="btn btn-primary bi bi-floppy-fill"> Guardar</button>
@@ -92,6 +102,7 @@
     public List<TiposTecnicos> TipoList { get; set; } = new List<TiposTecnicos>();
     public Clientes clientes { get; set; } = new Clientes();
     public Tecnicos tecnicos = new Tecnicos();
+    public List<Prioridades> prioridadesList { get; set; } = new List<Prioridades>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,10 +119,11 @@
             trabajo = new Trabajos();
         }
 
-        // Fetch lists for dropdowns
+        
         ClienteList = await clienteService.Listar(c => true);
         tecnicList = await tecnicoService.Listar(t => true);
         TipoList = await tiposTecnicoService.Listar(t => true);
+        prioridadesList = await prioridadesService.Listar(t => true);
     }
 
     public async Task<bool> Validar()
