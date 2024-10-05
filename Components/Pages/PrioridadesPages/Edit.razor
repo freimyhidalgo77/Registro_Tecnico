@@ -7,7 +7,7 @@
 <EditForm Model="prioridades" OnValidSubmit="Modificar">
 	<DataAnnotationsValidator/>
 	<div class="container">
-		<div class="card shadow-lg">
+		<div class="card shadow-lg">    
 			<div class="card accordion-header bg-primary text-white text-center">
 			  <h1><strong>Editar Prioridad</strong></h1>
 		</div>
@@ -17,14 +17,14 @@
 			<InputNumber id="PrioridadId" class="form-control" @bind-Value=prioridades.PrioridadId readonly> </InputNumber>
 
            <label class="form-label"><strong>Descripcion</strong></label>
-		   <InputText id="Descripcion" class="form-control" @bind-Value=prioridades.Descripcion></InputText>
-		   <ValidationMessage For="@(()=> prioridades.Descripcion)"></ValidationMessage>
+		   <InputText id="Descripcion" class="form-control" @bind-Value=prioridades.descripcion></InputText>
+		   <ValidationMessage For="@(()=> prioridades.descripcion)"></ValidationMessage>
 
 		   <label class="form-label"><strong>Tiempo</strong></label>
 		   <InputNumber id="Tiempo" class="form-control" @bind-Value=prioridades.Tiempo></InputNumber>
 		   <ValidationMessage For="@(()=>prioridades.Tiempo)"></ValidationMessage>
 		</div>
-		<div class="card-footer">
+		<div class="card-footer"> 
 			<button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick=Volver> Volver</button>
 			<button type="submit" class="btn btn-success bi bi-pencil-square"> Modificar</button>
 		</div>
