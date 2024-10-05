@@ -11,11 +11,11 @@ namespace RegistroTecnicos.Models
 
         public int PrioridadId { get; set; }
 
-        public string Descripcion { get; set; }
+        public string descripcion { get; set; }
 
         public int Tiempo { get; set; }
 
 
     }
 }
-           
+                  
