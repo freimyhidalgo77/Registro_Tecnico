@@ -4,6 +4,7 @@
 @inject TecnicoService tecnicoService
 @inject TrabajoService trabajoService
 @inject ClienteService clienteService
+@inject PrioridadesService prioridadesService
 @inject NavigationManager navigation
 
 <PageTitle>Crear consulta Trabajo</PageTitle>
@@ -69,8 +70,26 @@
             </InputSelect>
 
             <label class="form-label" for="Monto"><strong>Monto:</strong></label>
-            <InputNumber id="Monto" class="form-control" @bind-Value="trabajo.Monto"></InputNumber> 
+            <InputNumber id="Monto" class="form-control" @bind-Value="trabajo.Monto"></InputNumber>
             <ValidationMessage For="@(() => trabajo.Monto)"></ValidationMessage>
+
+            <label class="form-label"><strong>Prioridad ID:</strong></label>
+            <InputSelect @bind-Value="trabajo.PrioridadId" class="form-control">
+                <option value="0">Seleccione la prioridad del trabajo</option>
+                @foreach (var prioridad in prioridadesList)
+                {
+                    <option value="@prioridad.PrioridadId">@prioridad.PrioridadId</option>
+                }
+            </InputSelect>
+
+            <label class="form-label"><strong>Prioridad de Trabajo:</strong></label>
+            <InputSelect @bind-Value="trabajo.PrioridadId" class="form-control">
+                <option value="0">Seleccione la prioridad del trabajo</option>
+                @foreach (var prioridad in prioridadesList)
+                {
+                    <option value="@prioridad.PrioridadId">@prioridad.descripcion</option>
+                }
+            </InputSelect>
 
             <div class="card-footer">
                 <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
@@ -89,6 +108,8 @@
     public List<TiposTecnicos> TipoList { get; set; } = new List<TiposTecnicos>();
     public List<Clientes> ClienteList { get; set; } = new List<Clientes>();
     public List<Trabajos> ListTrabajos = new List<Trabajos>();
+    public Prioridades prioridades { get; set; } = new Prioridades();
+    public List<Prioridades> prioridadesList { get; set; } = new List<Prioridades>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,6 +117,7 @@
         tecnicList = await tecnicoService.Listar(t => true);
         ClienteList = await clienteService.Listar(t => true);
         ListTrabajos = await trabajoService.Listar(t => true);
+        prioridadesList = await prioridadesService.Listar(t => true);
     }
 
     public async Task<bool> Validar()
@@ -108,20 +130,22 @@
     {
         try
         {
-            if (await Validar())
+            if (await Validar()) 
             {
+                Console.WriteLine($"Guardando trabajo: ID = {trabajo.TrabajoId}, Cliente ID = {trabajo.ClienteId}, Técnico ID = {trabajo.TecnicoId}, Monto = {trabajo.Monto}");
                 await trabajoService.Guardar(trabajo);
                 trabajo = new Trabajos();
                 navigation.NavigateTo("/Trabajos/Index");
             }
             else
             {
-                // MOSTRAR UN MENSAJE SI NO EXISTE
+                Console.WriteLine("El trabajo ya existe y no se puede guardar.");
             }
         }
         catch (Exception ex)
         {
-            // MOSTRAR UN MENSAJE DE ERROR
+            // Manejo detallado de errores
+            Console.WriteLine($"Error al guardar el trabajo: {ex.Message}");
         }
     }
 
