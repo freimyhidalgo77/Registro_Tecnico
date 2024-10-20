@@ -11,8 +11,11 @@ namespace RegistroTecnicos.Models
 
         public int PrioridadId { get; set; }
 
-        public string descripcion { get; set; }
+        [Required(ErrorMessage = "Campo descripcion obligatorio")]
+        [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Solo letras")]
+        public string? descripcion { get; set; }
 
+        [Required(ErrorMessage = "Campo Obligatorio")]
         public int Tiempo { get; set; }
 
 

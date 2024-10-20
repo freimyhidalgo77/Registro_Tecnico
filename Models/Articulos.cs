@@ -9,7 +9,7 @@ namespace RegistroTecnicos.Models
         public int ArticuloId { get; set; }
 
         [Required(ErrorMessage = "Favor llenar el campo descripcion")]
-        public string descripcion { get; set; }
+        public string? descripcion { get; set; }
 
         [Required(ErrorMessage = "Favor llenar el campo costo")]
         public decimal costo { get; set; }

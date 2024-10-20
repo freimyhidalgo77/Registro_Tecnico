@@ -12,7 +12,7 @@ namespace RegistroTecnicos.Models
         public int TipoId { get; set; }
 
         [Required(ErrorMessage = "Favor de agregar una descripcion")]
-
+        [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Solo se permiten letras")]
         public string Descripcion { get; set; }
 
      

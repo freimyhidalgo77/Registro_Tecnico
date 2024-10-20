@@ -11,19 +11,14 @@ namespace RegistroTecnicos.Models
 		public int ClienteId { get; set; }
 
 		[Required(ErrorMessage = "Campo nombre obligatorio")]
-
 		[RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "El campo solo puede contener letras y espacios.")]
-		public string NombreCliente { get; set; }
+		public string? NombreCliente { get; set; }
 
 
 		[Required(ErrorMessage = "Campo numero de whatsapp obligatorio")]
+		public string? NumeroWhatsapp { get; set; }
 
-		public string NumeroWhatsapp { get; set; }
-
-
-
-
-		  
+	  
 	}
 }
   
