@@ -1,5 +1,6 @@
 ﻿@page "/Trabajos/Details/{TrabajoId:int}"
 @inject TrabajoService trabajoService
+@inject TrabajosDetalleService trabajoDetalleService
 @inject NavigationManager navigation
 
 <PageTitle>Detalles del Trabajo</PageTitle>
@@ -38,7 +39,21 @@
                     <div class="mb-1">
                         <p class="mb-0"><strong>Monto:</strong> @trabajo.Monto.ToString("C")</p>
                     </div>
+                    <div class="mb-1">
+                        <p class="mb-0"><strong>Articulo:</strong> @trabajo.TrabajosDetalle</p>
+                    </div>
                 </div>
+                <div class="border border-success p-3 mt-3">
+                    @foreach (var detalle in trabajo.TrabajosDetalle)
+                    {
+                        <ul>
+                            <li>Articulo Id: @detalle.ArticuloId</li>
+                            <li>Nombre Articulo: @detalle.Articulo?.descripcion</li>
+                            <li>Cantidad Articulo: @detalle.cantidad </li>
+                        </ul>
+                    }
+                </div>
+
             }
             else
             {
@@ -54,8 +69,8 @@
 @code {
     [Parameter]
     public int TrabajoId { get; set; }
-
     public Trabajos trabajo { get; set; }
+    public List<TrabajosDetalleService> TrabajosDetalles { get; set; } = new List<TrabajosDetalleService>();
 
     protected override async Task OnInitializedAsync()
     {

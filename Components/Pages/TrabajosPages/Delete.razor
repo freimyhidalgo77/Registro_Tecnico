@@ -35,12 +35,16 @@
                 <p><strong>Monto:</strong> @trabajo.Monto.ToString("C")</p>
             </div>
 
-            @if (!string.IsNullOrEmpty(MensajeError))
-            {
-                <div class="alert alert-danger" role="alert">
-                    @MensajeError
-                </div>
-            }
+            <div class="border border-success p-3 mt-3">
+                @foreach (var detalle in trabajo.TrabajosDetalle)
+                {
+                    <ul>
+                        <li>Articulo Id: @detalle.ArticuloId</li>
+                        <li>Nombre Articulo: @detalle.Articulo?.descripcion</li>
+                        <li>Cantidad Articulo: @detalle.cantidad </li>
+                    </ul>
+                }
+            </div>
 
             <div class="card-footer">
                 <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>

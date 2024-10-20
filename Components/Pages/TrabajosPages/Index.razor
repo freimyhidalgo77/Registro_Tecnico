@@ -7,7 +7,7 @@
 <PageTitle>Trabajos</PageTitle>
 
 <div class="container card shadow-lg">
-    <div class="card-header bg-primary text-white text-center bi bi-person-workspace">
+    <div class="card-header text-center bi bi-person-workspace">
         <h3><strong>Trabajos</strong></h3>
     </div>
 
@@ -19,10 +19,8 @@
                 <option value="" disabled>Seleccionar</option>
                 <option value="TrabajoId">Trabajo Id</option>
                 <option value="Fecha">Fecha</option>
-                <option value="ClienteId">Cliente Id</option>
-                <option value="NombreCliente">Nombre Cliente</option>
-                <option value="TecnicoId">Tecnico Id</option>
-                <option value="NombreTecnico">Nombre Tecnico</option>
+                <option value="NombreCliente">Cliente</option>
+                <option value="NombreTecnico">Tecnico</option>
                 <option value="Descripcion">Descripcion</option>
                 <option value="Monto">Monto</option>
             </InputSelect>
@@ -44,7 +42,7 @@
     <!-- Body -->
     <div class="card-body">
         <table class="table table-light table-bordered">
-            <thead class="table table-striped text-center table-bordered mt-3 bg-primary text-white">
+            <thead class="table table-striped text-center table-bordered mt-3 ">
                 <tr>
                     <th>Trabajo ID</th>
                     <th>Fecha</th>
@@ -63,7 +61,7 @@
                 {
                     @foreach (var trabajo in trabajos)
                     {
-                    
+
                         <tr>
                             <td class="text-center">@trabajo.TrabajoId</td>
                             <td class="text-center">@trabajo.Fecha.ToShortDateString()</td>
@@ -72,7 +70,7 @@
                             <td class="text-center">@trabajo.TiposTecnicos?.Descripcion </td>
                             <td class="text-center">@trabajo.Monto.ToString("C")</td>
                             <td class="text-center">@trabajo.Prioridades?.descripcion </td>
-                           
+
 
                             <td class="text-center">
                                 <a href="/Trabajos/Details/@trabajo.TrabajoId" class="btn btn-outline-info bi bi-eye"></a>
@@ -86,12 +84,7 @@
                         </tr>
                     }
                 }
-                else
-                {
-                    <tr>
-                        <td colspan="10" class="text-center">No se encontraron trabajos.</td>
-                    </tr>
-                }
+
             </tbody>
         </table>
     </div>
@@ -105,15 +98,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            trabajos = await trabajoService.Listar(t => true);
-            prioridadesList = await prioridadesService.Listar(t => true);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error cargando datos: {ex.Message}");
-        }
+
+        trabajos = await trabajoService.Listar(t => true);
+        prioridadesList = await prioridadesService.Listar(t => true);
+
+
     }
 
     private async Task Buscar()
