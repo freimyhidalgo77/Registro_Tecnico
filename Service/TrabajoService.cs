@@ -19,6 +19,32 @@ namespace RegistroTecnicos.Service
             return await _context.Trabajos.AnyAsync(t => t.TrabajoId == id);
         }
 
+
+        public async Task AfectarArticulos(TrabajosDetalle[] trabajosDetalle, bool afectar)
+        {
+            foreach (var detalle in trabajosDetalle)
+            {
+                var articulo = await _context.Articulos.SingleAsync(a => a.ArticuloId == detalle.ArticuloId);
+
+                if (afectar)
+                {
+                    
+                    articulo.existencia += detalle.cantidad; 
+                }
+                else
+                {
+                   
+                    articulo.existencia -= detalle.cantidad;
+                }
+
+                
+                _context.Articulos.Update(articulo);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+
         private async Task<bool> ValidarRelaciones(int clienteId, int tecnicoId, int tipoId, int prioridadId)
         {
             var clienteExiste = await _context.Clientes.AnyAsync(c => c.ClienteId == clienteId);
@@ -28,7 +54,7 @@ namespace RegistroTecnicos.Service
 
             return clienteExiste && tecnicoExiste && tipoExiste && prioridadExiste;
         }
-
+         
         private async Task<bool> Insertar(Trabajos trabajos)
         {
             if (await ValidarRelaciones(trabajos.ClienteId, trabajos.TecnicoId, trabajos.TipoId, trabajos.PrioridadId))
@@ -41,30 +67,27 @@ namespace RegistroTecnicos.Service
 
         public async Task<bool> Modificar(Trabajos trabajos)
         {
-            try
-            {
-                // Verificar las relaciones
+           
+              
                 if (await ValidarRelaciones(trabajos.ClienteId, trabajos.TecnicoId, trabajos.TipoId, trabajos.PrioridadId))
                 {
-                    // Asegúrate de que el contexto esté rastreando la entidad
-                    var existingTrabajo = await _context.Trabajos.FindAsync(trabajos.TrabajoId);
+                   
+                    var existingTrabajo = await _context.Trabajos
+                    .Include(t => t.TrabajosDetalle)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
                     if (existingTrabajo != null)
                     {
-                        // Actualizar los valores de la entidad existente
-                        _context.Entry(existingTrabajo).CurrentValues.SetValues(trabajos);
+                    await AfectarArticulos(existingTrabajo.TrabajosDetalle.ToArray(), false);
+                    await AfectarArticulos(trabajos.TrabajosDetalle.ToArray(),true);
 
-                        // Guardar cambios
+                        _context.Update(trabajos);
                         return await _context.SaveChangesAsync() > 0;
                     }
                 }
                 return false;
-            }
-            catch (Exception ex)
-            {
-                // Manejo de excepciones, por ejemplo, registrar el error
-                Console.WriteLine($"Error al modificar el trabajo: {ex.Message}");
-                return false;
-            }
+            
+           
         }
 
 
@@ -201,5 +224,8 @@ namespace RegistroTecnicos.Service
                 })
                 .FirstOrDefaultAsync(t => t.TrabajoId == trabajoId);
         }
+
+
+
     }
 }
