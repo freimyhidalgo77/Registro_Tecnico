@@ -19,7 +19,7 @@ namespace RegistroTecnicos.Service
             return await _context.Trabajos.AnyAsync(t => t.TrabajoId == id);
         }
 
-
+       
         public async Task AfectarArticulos(TrabajosDetalle[] trabajosDetalle, bool afectar)
         {
             foreach (var detalle in trabajosDetalle)
@@ -44,59 +44,51 @@ namespace RegistroTecnicos.Service
             await _context.SaveChangesAsync();
         }
 
-
-        private async Task<bool> ValidarRelaciones(int clienteId, int tecnicoId, int tipoId, int prioridadId)
-        {
-            var clienteExiste = await _context.Clientes.AnyAsync(c => c.ClienteId == clienteId);
-            var tecnicoExiste = await _context.Tecnicos.AnyAsync(t => t.TecnicoId == tecnicoId);
-            var tipoExiste = await _context.TiposTecnicos.AnyAsync(tt => tt.TipoId == tipoId);
-            var prioridadExiste = await _context.Prioridades.AnyAsync(p => p.PrioridadId == prioridadId);
-
-            return clienteExiste && tecnicoExiste && tipoExiste && prioridadExiste;
-        }
-         
         private async Task<bool> Insertar(Trabajos trabajos)
         {
-            if (await ValidarRelaciones(trabajos.ClienteId, trabajos.TecnicoId, trabajos.TipoId, trabajos.PrioridadId))
-            {
-                _context.Trabajos.Add(trabajos);
-                return await _context.SaveChangesAsync() > 0;
-            }
-            return false;
+
+            await AfectarArticulos(trabajos.TrabajosDetalle.ToArray(), true);
+            _context.Trabajos.Add(trabajos);
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> Modificar(Trabajos trabajos)
-        {
-           
-              
-                if (await ValidarRelaciones(trabajos.ClienteId, trabajos.TecnicoId, trabajos.TipoId, trabajos.PrioridadId))
-                {
-                   
-                    var existingTrabajo = await _context.Trabajos
-                    .Include(t => t.TrabajosDetalle)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync();
-                    if (existingTrabajo != null)
-                    {
-                    await AfectarArticulos(existingTrabajo.TrabajosDetalle.ToArray(), false);
-                    await AfectarArticulos(trabajos.TrabajosDetalle.ToArray(),true);
 
-                        _context.Update(trabajos);
-                        return await _context.SaveChangesAsync() > 0;
-                    }
-                }
-                return false;
-            
-           
+        private async Task<bool> Modificar(Trabajos trabajos)
+        {
+            var trabajoOriginal = await _context.Trabajos
+            .Include(t => t.TrabajosDetalle)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.TrabajoId == trabajos.TrabajoId);
+
+            await AfectarArticulos(trabajoOriginal.TrabajosDetalle.ToArray(), false);
+
+            await AfectarArticulos(trabajos.TrabajosDetalle.ToArray(), true);
+
+            _context.Update(trabajos);
+            return await _context.SaveChangesAsync() > 0;
         }
 
 
         public async Task<bool> Guardar(Trabajos trabajos)
         {
-            if (!await Existe(trabajos.TrabajoId))
-                return await Insertar(trabajos);
-            else
-                return await Modificar(trabajos);
+            string mensaje;
+            try
+            {
+                if (!await Existe(trabajos.TrabajoId))
+                    return await Insertar(trabajos);
+                else
+                    return await Modificar(trabajos);
+            }
+            catch (DbUpdateException ex)
+            {
+                mensaje = "Error al guardar los cambios: " + ex.InnerException?.Message;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Se produjo un error inesperado: " + ex.Message;
+                return false;
+            }
         }
 
         public async Task<bool> Eliminar(int id)
@@ -163,28 +155,33 @@ namespace RegistroTecnicos.Service
                     Fecha = t.Fecha,
                     Monto = t.Monto,
                     PrioridadId = t.PrioridadId,
-                    Clientes = new Clientes
+
+                    // Manejo de posibles valores nulos
+                    Clientes = t.Clientes != null ? new Clientes
                     {
                         ClienteId = t.Clientes.ClienteId,
                         NombreCliente = t.Clientes.NombreCliente
-                    },
-                    Tecnicos = new Tecnicos
+                    } : null, // Si no existe cliente, asignar null
+
+                    Tecnicos = t.Tecnicos != null ? new Tecnicos
                     {
                         TecnicoId = t.Tecnicos.TecnicoId,
                         NombreTecnico = t.Tecnicos.NombreTecnico
-                    },
-                    TiposTecnicos = new TiposTecnicos
+                    } : null, // Si no existe técnico, asignar null
+
+                    TiposTecnicos = t.TiposTecnicos != null ? new TiposTecnicos
                     {
                         Descripcion = t.TiposTecnicos.Descripcion
-                    },
-                    Prioridades = new Prioridades
+                    } : null, // Si no existe tipo de técnico, asignar null
+
+                    Prioridades = t.Prioridades != null ? new Prioridades
                     {
                         descripcion = t.Prioridades.descripcion
-                    },
-
+                    } : null, // Si no existe prioridad, asignar null
                 })
                 .ToListAsync();
         }
+
 
         public async Task<Trabajos?> BuscarTrabajo(int trabajoId)
         {
