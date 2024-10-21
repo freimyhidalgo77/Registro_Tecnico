@@ -12,7 +12,7 @@
 <PageTitle>Crear consulta Trabajo</PageTitle>
 <EditForm Model="Trabajo" OnValidSubmit="Crear">
     <DataAnnotationsValidator />
-   
+
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header text-center">
@@ -25,7 +25,6 @@
                 <label class="form-label" for="Fecha"><strong>Fecha</strong></label>
                 <InputDate id="Fecha" class="form-control" @bind-Value="Trabajo.Fecha"></InputDate>
                 <ValidationMessage For="@(() => Trabajo.Fecha)" />
-
 
                 <label class="form-label"><strong>Cliente:</strong></label>
                 <InputSelect @bind-Value="Trabajo.ClienteId" class="form-control">
@@ -61,7 +60,7 @@
                 <InputNumber id="Monto" class="form-control" @bind-Value="Trabajo.Monto"></InputNumber>
                 <ValidationMessage For="@(() => Trabajo.Monto)" />
 
-                <label class="form-label" for="descripcion"><strong>Descripcion:</strong></label>
+                <label class="form-label" for="descripcion"><strong>Descripción:</strong></label>
                 <InputText id="descripcion" class="form-control" @bind-Value="Trabajo.Descripcion"></InputText>
                 <ValidationMessage For="@(() => Trabajo.Descripcion)" />
 
@@ -98,32 +97,33 @@
                         <tr class="text-center">
                             <th>Artículo</th>
                             <th>Cantidad</th>
+                            <th>Precio</th>
                             <th>Remover</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var detalle in Trabajo.TrabajosDetalle)
                         {
-                            <tr>
-                                <td>@detalle.Articulo.descripcion</td>
-                                <td>@detalle.cantidad</td>
-                                <td>
-                                <button type="button" class="btn btn-outline-danger bi bi-trash"
-                                  @onclick="() => RemoverDetalle(detalle)"></button>
+                            <tr class="text-center">
+                                <td class="ps-3">@detalle.Articulo.descripcion</td>
+                                <td class="ps-3">@detalle.cantidad</td>
+                                <td class="ps-3">@detalle.Precio.ToString("C")</td>
+                                <td class="ps-3">
+                                    <button type="button" class="btn btn-outline-danger bi bi-trash"
+                                            @onclick="() => RemoverDetalle(detalle)"></button>
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
+
+            <div class="card-footer">
+                <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+                <button type="submit" class="btn btn-success bi bi-floppy-fill"> Guardar</button>
+            </div>
         </div>
     </div>
-
-    <div class="card-footer">
-        <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
-        <button type="submit" class="btn btn-success bi bi-floppy-fill"> Guardar</button>
-    </div>
-
 
     @if (!string.IsNullOrEmpty(mensaje))
     {
@@ -133,6 +133,7 @@
     }
 
 </EditForm>
+
 
 @code {
     public Trabajos Trabajo { get; set; } = new Trabajos();
@@ -144,6 +145,7 @@
     public TrabajosDetalle trabajoDetalle { get; set; } = new TrabajosDetalle();
     public List<TrabajosDetalle> trabajoDetalleList { get; set; } = new List<TrabajosDetalle>();
     public Articulos articulos { get; set; } = new Articulos();
+    public List<Trabajos> trabajoList { get; set; } = new List<Trabajos>();
     public string mensaje { get; set; } = string.Empty;
 
 
@@ -154,6 +156,7 @@
         ClienteList = await clienteService.Listar(t => true);
         PrioridadesList = await prioridadesService.Listar(p => true);
         ListaArticulos = await dbContext.Articulos.ToListAsync();
+        trabajoList = await trabajoService.Listar(t => true);
         Trabajo.Fecha = DateTime.Now;
     }
 
@@ -176,7 +179,6 @@
             mensaje = $"Error: {ex.Message}";
         }
     }
-
 
 
     public void AgregarArticulo((Articulos articulo, int cantidad) selection)
