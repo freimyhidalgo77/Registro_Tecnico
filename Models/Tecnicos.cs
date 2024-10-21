@@ -15,7 +15,7 @@ namespace RegistroTecnicos.Models
 
         [Required(ErrorMessage = "El campo nombre es obligatorio.")]
         [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "El campo solo puede contener letras y espacios.")]
-        public string NombreTecnico { get; set; }
+        public string? NombreTecnico { get; set; }
 
 
         [Required(ErrorMessage = "Campo sueldo por hora obligatrio ")]
