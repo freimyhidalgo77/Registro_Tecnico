@@ -1,7 +1,8 @@
 ﻿@page "/Trabajos/Index"
 @using System.Linq.Expressions
 @inject TrabajoService trabajoService
-@inject PrioridadesService prioridadesService
+@inject TecnicoService tecnicoService
+@inject ClienteService clienteService
 @inject NavigationManager navigation
 
 <PageTitle>Trabajos</PageTitle>
@@ -57,21 +58,18 @@
                 </tr>
             </thead>
             <tbody>
-                @if (trabajos != null && trabajos.Any())
-                {
+               
+      
                     @foreach (var trabajo in trabajos)
                     {
-
                         <tr>
                             <td class="text-center">@trabajo.TrabajoId</td>
                             <td class="text-center">@trabajo.Fecha.ToShortDateString()</td>
-                            <td class="text-center">@trabajo.Clientes?.NombreCliente </td>
-                            <td class="text-center">@trabajo.Tecnicos?.NombreTecnico </td>
-                            <td class="text-center">@trabajo.TiposTecnicos?.Descripcion </td>
+                            <td class="text-center">@trabajo.Clientes?.NombreCliente</td> 
+                            <td class="text-center">@trabajo.Tecnicos?.NombreTecnico</td> 
+                            <td class="text-center">@trabajo.TiposTecnicos?.Descripcion</td> 
                             <td class="text-center">@trabajo.Monto.ToString("C")</td>
-                            <td class="text-center">@trabajo.Prioridades?.descripcion </td>
-
-
+                            <td class="text-center">@trabajo.Prioridades?.descripcion</td> 
                             <td class="text-center">
                                 <a href="/Trabajos/Details/@trabajo.TrabajoId" class="btn btn-outline-info bi bi-eye"></a>
                             </td>
@@ -83,30 +81,28 @@
                             </td>
                         </tr>
                     }
-                }
-
+                
             </tbody>
+
         </table>
     <div class="card-footer">
-        <p><strong>Total de Trabajos: </strong>@trabajos.Count</p>
+        <p><strong>Total de Trabajos: </strong>@trabajos?.Count</p>
     </div>
 
     </div>
 </div>
 
 @code {
-    private List<Trabajos> trabajos = new List<Trabajos>();
-    private List<Prioridades> prioridadesList = new List<Prioridades>();
-    private string filtro { get; set; } = string.Empty;
-    private string ValorFiltro { get; set; } = string.Empty;
+    public List<Trabajos> trabajos { get; set; } = new List<Trabajos>();
+    public List<Clientes> ClienteList { get; set; } = new List<Clientes>();
+    public string filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
 
         trabajos = await trabajoService.Listar(t => true);
-        prioridadesList = await prioridadesService.Listar(t => true);
-
-
+       
     }
 
     private async Task Buscar()
@@ -149,7 +145,7 @@
             }
 
             trabajos = await trabajoService.Listar(criterio);
-            StateHasChanged(); // Forzar actualización de la UI
+            StateHasChanged(); 
         }
     }
 }
