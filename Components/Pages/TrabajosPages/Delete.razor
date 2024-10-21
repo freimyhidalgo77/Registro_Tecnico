@@ -5,7 +5,7 @@
 <PageTitle>Eliminar Trabajo</PageTitle>
 <div class="container">
     <div class="card shadow-lg">
-        <div class="card-header bg-danger text-white">
+        <div class="card-header">
             <h3><strong>Eliminar Trabajo</strong></h3>
         </div>
         <div class="card-body">
@@ -45,6 +45,34 @@
                     </ul>
                 }
             </div>
+        </div>
+
+
+        <div class="border border-success p-3 mt-3">
+
+            <table class="table table-light table-bordered">
+                <thead class="table table-striped text-center">
+                    <tr>
+                        <th>ArticuloId</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in trabajo.TrabajosDetalle)
+                    {
+                        var descripcionArticulo = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.descripcion ?? "No encontrado";
+                        <tr>
+                            <td>@descripcionArticulo</td>
+                            <td>@detalle.cantidad</td>
+                            <td>@detalle.Precio.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+
 
             <div class="card-footer">
                 <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
@@ -52,17 +80,18 @@
             </div>
         </div>
     </div>
-</div>
+
 
 @code {
     [Parameter]
     public int trabajoId { get; set; }
-    public Trabajos trabajo { get; set; }
+    public Trabajos? trabajo { get; set; }
     public string MensajeError { get; set; } = string.Empty;
+    public List<Articulos> ListaArticulos { get; set; } = new List<Articulos>();
 
     protected override async Task OnInitializedAsync()
     {
-        trabajo = await trabajoService.Buscar(trabajoId);
+        trabajo = await trabajoService.BuscarTrabajo(trabajoId);
         if (trabajo == null)
         {
             MensajeError = "El trabajo no fue encontrado.";

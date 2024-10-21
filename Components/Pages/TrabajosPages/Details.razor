@@ -1,18 +1,22 @@
-﻿@page "/Trabajos/Details/{TrabajoId:int}"
+﻿@page "/Trabajos/Details"
+@page "/Trabajos/Details/{TrabajoId:int}"
 @inject TrabajoService trabajoService
 @inject TrabajosDetalleService trabajoDetalleService
+@inject ClienteService clientesServices
+@inject TecnicoService tecnicosServices
+@inject PrioridadesService prioridadesServices
 @inject NavigationManager navigation
+@inject Context dbContext
 
 <PageTitle>Detalles del Trabajo</PageTitle>
 
 <div class="container">
     <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header">
             <h3><strong>Detalles del Trabajo</strong></h3>
         </div>
-        <div class="card-body"> 
-            @if (trabajo != null)
-            {
+        <div class="card-body">
+            
                 <div class="mb-3">
                     <h5><strong>Detalles del trabajo seleccionado:</strong></h5>
                     <div class="mb-1">
@@ -22,67 +26,75 @@
                         <p class="mb-0"><strong>Fecha:</strong> @trabajo.Fecha.ToShortDateString()</p>
                     </div>
                     <div class="mb-1">
-                        <p class="mb-0"><strong>Cliente ID:</strong> @trabajo.ClienteId</p>
+                        <p class="mb-0"><strong>Cliente ID:</strong> @trabajo.Clientes?.ClienteId</p>
                     </div>
                     <div class="mb-1">
                         <p class="mb-0"><strong>Nombre Cliente:</strong> @trabajo.Clientes?.NombreCliente</p>
                     </div>
                     <div class="mb-1">
-                        <p class="mb-0"><strong>Tecnico ID:</strong> @trabajo.TecnicoId</p>
+                        <p class="mb-0"><strong>Tecnico ID:</strong> @trabajo.Tecnicos?.TecnicoId</p>
                     </div>
                     <div class="mb-1">
                         <p class="mb-0"><strong>Nombre Tecnico:</strong> @trabajo.Tecnicos?.NombreTecnico</p>
                     </div>
                     <div class="mb-1">
-                        <p class="mb-0"><strong>Descripción:</strong> @trabajo.TiposTecnicos?.Descripcion</p>
+                        <p class="mb-0"><strong>Descripción:</strong> @trabajo.TiposTecnicos?.Descripcion"</p>
                     </div>
                     <div class="mb-1">
                         <p class="mb-0"><strong>Monto:</strong> @trabajo.Monto.ToString("C")</p>
                     </div>
-                    <div class="mb-1">
-                        <p class="mb-0"><strong>Articulo:</strong> @trabajo.TrabajosDetalle</p>
-                    </div>
-                </div>
+          
                 <div class="border border-success p-3 mt-3">
-                    @foreach (var detalle in trabajo.TrabajosDetalle)
-                    {
-                        <ul>
-                            <li>Articulo Id: @detalle.ArticuloId</li>
-                            <li>Nombre Articulo: @detalle.Articulo?.descripcion</li>
-                            <li>Cantidad Articulo: @detalle.cantidad </li>
-                        </ul>
-                    }
-                </div>
-
-            }
-            else
-            {
-                <p>No se encontraron detalles para el trabajo seleccionado.</p>
-            }
+                    <table class="table table-light table-bordered">
+                        <thead class="table table-striped text-center">
+                            <tr>
+                                <th>ArticuloId</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detalle in trabajo.TrabajosDetalle)
+                            {
+                                var descripcion = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.descripcion;
+                                <tr>
+                                    <td>@descripcion</td>
+                                    <td>@detalle.cantidad</td>
+                                    <td>@detalle.Precio.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                  
         </div>
         <div class="card-footer">
             <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 
 @code {
     [Parameter]
     public int TrabajoId { get; set; }
     public Trabajos trabajo { get; set; }
-    public List<TrabajosDetalleService> TrabajosDetalles { get; set; } = new List<TrabajosDetalleService>();
+    public List<Articulos> ListaArticulos {get;set;} = new List<Articulos>();
+    public Tecnicos? tecnico { get; set; }
+    public Prioridades? prioridad { get; set; }
+
+
 
     protected override async Task OnInitializedAsync()
     {
-        if (TrabajoId > 0)
-        {
-            trabajo = await trabajoService.Buscar(TrabajoId);
-        }
-        else
-        {
-            trabajo = null;
-        }
+        trabajo = await trabajoService.BuscarTrabajo(TrabajoId);
+        tecnico = await tecnicosServices.Buscar(trabajo.TecnicoId);
+        prioridad = await prioridadesServices.Buscar(trabajo.PrioridadId);
+        ListaArticulos = await dbContext.Articulos.ToListAsync();
     }
+            
+           
 
     private void Volver()
     {
