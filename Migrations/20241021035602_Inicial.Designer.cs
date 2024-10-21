@@ -11,7 +11,7 @@ using RegistroTecnicos.DAL;
 namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20241020053207_Inicial")]
+    [Migration("20241021035602_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -131,9 +131,12 @@ namespace RegistroTecnicos.Migrations
                     b.Property<int>("TipoId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("TipoTecnicosTipoId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TecnicoId");
 
-                    b.HasIndex("TipoId");
+                    b.HasIndex("TipoTecnicosTipoId");
 
                     b.ToTable("Tecnicos");
                 });
@@ -192,9 +195,6 @@ namespace RegistroTecnicos.Migrations
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ClientesClienteId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -208,30 +208,21 @@ namespace RegistroTecnicos.Migrations
                     b.Property<int>("PrioridadId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("PrioridadesPrioridadId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("TecnicoId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TecnicosTecnicoId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TipoId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TiposTecnicosTipoId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("TrabajoId");
 
-                    b.HasIndex("ClientesClienteId");
+                    b.HasIndex("ClienteId");
 
-                    b.HasIndex("PrioridadesPrioridadId");
+                    b.HasIndex("PrioridadId");
 
-                    b.HasIndex("TecnicosTecnicoId");
+                    b.HasIndex("TecnicoId");
 
-                    b.HasIndex("TiposTecnicosTipoId");
+                    b.HasIndex("TipoId");
 
                     b.ToTable("Trabajos");
                 });
@@ -240,9 +231,7 @@ namespace RegistroTecnicos.Migrations
                 {
                     b.HasOne("RegistroTecnicos.Models.TiposTecnicos", "TipoTecnicos")
                         .WithMany()
-                        .HasForeignKey("TipoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TipoTecnicosTipoId");
 
                     b.Navigation("TipoTecnicos");
                 });
@@ -270,25 +259,25 @@ namespace RegistroTecnicos.Migrations
                 {
                     b.HasOne("RegistroTecnicos.Models.Clientes", "Clientes")
                         .WithMany()
-                        .HasForeignKey("ClientesClienteId")
+                        .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RegistroTecnicos.Models.Prioridades", "Prioridades")
                         .WithMany()
-                        .HasForeignKey("PrioridadesPrioridadId")
+                        .HasForeignKey("PrioridadId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RegistroTecnicos.Models.Tecnicos", "Tecnicos")
                         .WithMany()
-                        .HasForeignKey("TecnicosTecnicoId")
+                        .HasForeignKey("TecnicoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RegistroTecnicos.Models.TiposTecnicos", "TiposTecnicos")
                         .WithMany()
-                        .HasForeignKey("TiposTecnicosTipoId")
+                        .HasForeignKey("TipoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
