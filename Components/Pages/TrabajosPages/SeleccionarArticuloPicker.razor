@@ -5,7 +5,7 @@
         @foreach (var articulo in ListaArticulo)
         {
             <option value="@articulo.ArticuloId">
-                @articulo.descripcion --- $ @(articulo.precio.ToString("0.00"))
+                @articulo.descripcion --- $ @(articulo.precio.ToString("0.00"))-- $ @(articulo.costo.ToString("0.00"))
             </option>
         }
     </InputSelect>
