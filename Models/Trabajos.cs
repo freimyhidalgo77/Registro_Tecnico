@@ -16,27 +16,26 @@ public class Trabajos
     [Required(ErrorMessage = "Favor llenar el campo monto")]
     public decimal Monto { get; set; }
 
-    [ForeignKey("ClienteId")]
+    [ForeignKey("Clientes")]
     public int ClienteId { get; set; }
     public Clientes? Clientes { get; set; }
 
 
-    [ForeignKey("TecnicoId")]
+    [ForeignKey("Tecnicos")]
     public int TecnicoId { get; set; }
     public Tecnicos? Tecnicos { get; set; }
 
 
-    [ForeignKey("TipoId")]
+    [ForeignKey("TiposTecnicos")]
     public int TipoId { get; set; }
     public TiposTecnicos? TiposTecnicos { get; set; }
 
 
-    [ForeignKey("PrioridadId")]
+    [ForeignKey("Prioridades")]
     public int PrioridadId { get; set; }
     public Prioridades? Prioridades { get; set; }
 
-  
-
+ 
     [ForeignKey("TrabajoId")]
     public ICollection<TrabajosDetalle> TrabajosDetalle { get; set; } = new List<TrabajosDetalle>();
 
