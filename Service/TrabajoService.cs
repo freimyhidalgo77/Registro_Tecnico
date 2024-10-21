@@ -156,34 +156,34 @@ namespace RegistroTecnicos.Service
                     Monto = t.Monto,
                     PrioridadId = t.PrioridadId,
 
-                    // Manejo de posibles valores nulos
+                   
                     Clientes = t.Clientes != null ? new Clientes
                     {
                         ClienteId = t.Clientes.ClienteId,
                         NombreCliente = t.Clientes.NombreCliente
-                    } : null, // Si no existe cliente, asignar null
+                    } : null, 
 
                     Tecnicos = t.Tecnicos != null ? new Tecnicos
                     {
                         TecnicoId = t.Tecnicos.TecnicoId,
                         NombreTecnico = t.Tecnicos.NombreTecnico
-                    } : null, // Si no existe técnico, asignar null
+                    } : null, 
 
                     TiposTecnicos = t.TiposTecnicos != null ? new TiposTecnicos
                     {
                         Descripcion = t.TiposTecnicos.Descripcion
-                    } : null, // Si no existe tipo de técnico, asignar null
+                    } : null, 
 
                     Prioridades = t.Prioridades != null ? new Prioridades
                     {
                         descripcion = t.Prioridades.descripcion
-                    } : null, // Si no existe prioridad, asignar null
+                    } : null, 
                 })
                 .ToListAsync();
         }
 
 
-        public async Task<Trabajos?> BuscarTrabajo(int trabajoId)
+        public async Task<Trabajos?> BuscarTrabajo(int id)
         {
             return await _context.Trabajos
                 .AsNoTracking()
@@ -196,31 +196,37 @@ namespace RegistroTecnicos.Service
                     TrabajoId = t.TrabajoId,
                     ClienteId = t.ClienteId,
                     TecnicoId = t.TecnicoId,
+                    PrioridadId = t.PrioridadId,
                     TipoId = t.TipoId,
                     Fecha = t.Fecha,
                     Monto = t.Monto,
-                    PrioridadId = t.PrioridadId,
-                    Clientes = new Clientes
+
+                    Clientes = t.Clientes != null ? new Clientes
                     {
                         ClienteId = t.Clientes.ClienteId,
                         NombreCliente = t.Clientes.NombreCliente
-                    },
-                    Tecnicos = new Tecnicos
+                    } : null,
+
+                    Tecnicos = t.Tecnicos != null ? new Tecnicos
                     {
                         TecnicoId = t.Tecnicos.TecnicoId,
                         NombreTecnico = t.Tecnicos.NombreTecnico
-                    },
-                    TiposTecnicos = new TiposTecnicos
+                    } : null,
+
+                    TiposTecnicos = t.TiposTecnicos != null ? new TiposTecnicos
                     {
                         Descripcion = t.TiposTecnicos.Descripcion
-                    },
-                     Prioridades = new Prioridades
-                     {
-                         descripcion = t.Prioridades.descripcion
-                     },
+                    } : null,
+
+                    Prioridades = t.Prioridades != null ? new Prioridades
+                    {
+                        descripcion = t.Prioridades.descripcion
+                    } : null,
                 })
-                .FirstOrDefaultAsync(t => t.TrabajoId == trabajoId);
+                .FirstOrDefaultAsync(t => t.TrabajoId == id);
         }
+
+
 
 
 
