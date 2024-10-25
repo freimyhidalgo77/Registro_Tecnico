@@ -1,0 +1,151 @@
+﻿@page "/Trabajos/Index"
+@using System.Linq.Expressions
+@inject TrabajoService trabajoService
+@inject TecnicoService tecnicoService
+@inject ClienteService clienteService
+@inject NavigationManager navigation
+
+<PageTitle>Trabajos</PageTitle>
+
+<div class="container card shadow-lg">
+    <div class="card-header text-center bi bi-person-workspace">
+        <h3><strong>Trabajos</strong></h3>
+    </div>
+
+    <!-- Header -->
+    <div class="row mb-3 align-items-end">
+        <div class="col-md-3">
+            <label for="Filtro" class="form-label"><strong>Filtrar por:</strong></label>
+            <InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+                <option value="" disabled>Seleccionar</option>
+                <option value="TrabajoId">Trabajo Id</option>
+                <option value="Fecha">Fecha</option>
+                <option value="NombreCliente">Cliente</option>
+                <option value="NombreTecnico">Tecnico</option>
+                <option value="Descripcion">Descripcion</option>
+                <option value="Monto">Monto</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <label for="ValorFiltro" class="form-label"><strong>Búsqueda:</strong></label>
+            <div class="input-group">
+                <input @bind="ValorFiltro" class="form-control" placeholder="Buscar" />
+                <button @onclick="Buscar" class="btn btn-success" type="button">
+                    <span class="bi bi-search"></span> Buscar
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex align-items-end justify-content-md-end mt-3 mt-md-0">
+            <a href="/Trabajos/Create" class="btn btn-success bi bi-plus-square-fill"> Crear</a>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body">
+        <table class="table table-light table-bordered">
+            <thead class="table table-striped text-center table-bordered mt-3 ">
+                <tr>
+                    <th>Trabajo ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Tecnico</th>
+                    <th>Descripcion</th>
+                    <th>Monto</th>
+                    <th>Prioridad</th>
+                    <th>Ver</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+
+
+                @foreach (var trabajo in trabajos)
+                {
+                    <tr>
+                        <td class="text-center">@trabajo.TrabajoId</td>
+                        <td class="text-center">@trabajo.Fecha.ToShortDateString()</td>
+                        <td class="text-center">@trabajo.Clientes?.NombreCliente</td>
+                        <td class="text-center">@trabajo.Tecnicos?.NombreTecnico</td>
+                        <td class="text-center">@trabajo.TiposTecnicos?.Descripcion</td>
+                        <td class="text-center">@trabajo.Monto.ToString("C")</td>
+                        <td class="text-center">@trabajo.Prioridades?.descripcion</td>
+                        <td class="text-center">
+                            <a href="/Trabajos/Details/@trabajo.TrabajoId" class="btn btn-outline-info bi bi-eye"></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="/Trabajos/Edit/@trabajo.TrabajoId" class="btn btn-outline-warning bi bi-pencil-square"></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="/Trabajos/Delete/@trabajo.TrabajoId" class="btn btn-outline-danger bi bi-trash"></a>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+        <div class="card-footer">
+            <p><strong>Total de Trabajos: </strong>@trabajos?.Count</p>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    public List<Trabajos> trabajos { get; set; } = new List<Trabajos>();
+    public List<Clientes> ClienteList { get; set; } = new List<Clientes>();
+    public string filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        trabajos = await trabajoService.Listar(t => true);
+
+    }
+
+    private async Task Buscar()
+    {
+        if (!string.IsNullOrWhiteSpace(ValorFiltro))
+        {
+            Expression<Func<Trabajos, bool>> criterio = t => true;
+
+            if (filtro == "TrabajoId" && int.TryParse(ValorFiltro, out int trabajoId))
+            {
+                criterio = t => t.TrabajoId == trabajoId;
+            }
+            else if (filtro == "Fecha" && DateTime.TryParse(ValorFiltro, out DateTime fecha))
+            {
+                criterio = t => t.Fecha.Date == fecha.Date;
+            }
+            else if (filtro == "ClienteId" && int.TryParse(ValorFiltro, out int clienteId))
+            {
+                criterio = t => t.ClienteId == clienteId;
+            }
+            else if (filtro == "NombreCliente")
+            {
+                criterio = t => t.Clientes != null && t.Clientes.NombreCliente.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
+            }
+            else if (filtro == "TecnicoId" && int.TryParse(ValorFiltro, out int tecnicoId))
+            {
+                criterio = t => t.TecnicoId == tecnicoId;
+            }
+            else if (filtro == "NombreTecnico")
+            {
+                criterio = t => t.Tecnicos != null && t.Tecnicos.NombreTecnico.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
+            }
+            else if (filtro == "Descripcion")
+            {
+                criterio = t => t.TiposTecnicos != null && t.TiposTecnicos.Descripcion.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
+            }
+            else if (filtro == "Monto" && decimal.TryParse(ValorFiltro, out decimal monto))
+            {
+                criterio = t => t.Monto == monto;
+            }
+
+            trabajos = await trabajoService.Listar(criterio);
+            StateHasChanged();
+        }
+    }
+}

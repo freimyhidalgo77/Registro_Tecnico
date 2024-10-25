@@ -1,0 +1,186 @@
+﻿@page "/Cotizaciones/Create"
+@rendermode InteractiveServer
+@inject ClienteService clienteService
+@inject TrabajoService trabajoService
+@inject PrioridadesService prioridadesService
+@inject CotizacionService cotizacionService
+@inject NavigationManager navigation
+@inject Context dbContext
+
+<PageTitle>Crear Cotizacion</PageTitle>
+<EditForm Model="Trabajo" OnValidSubmit="Crear">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h1><strong>Crear consulta de trabajo</strong></h1>
+            </div>
+            <div class="card-body">
+                <label class="form-label" for="CotizacionId"><strong>Cotizacion ID:</strong></label>
+                <InputNumber id="TrabajoId" class="form-control" @bind-Value="cotizaciones.CotizacionId" readonly></InputNumber>
+
+                @* OJO:Arreglar fecha aqui, ya que Enel quiere una fecha de entrada y otra de salida, tamben usar la BD SQLServer *@
+                <label class="form-label" for="Fecha"><strong>Fecha</strong></label>
+                <InputDate id="Fecha" class="form-control" @bind-Value="Trabajo.Fecha"></InputDate>
+                <ValidationMessage For="@(() => Trabajo.Fecha)" />
+
+                <label class="form-label"><strong>Cliente ID:</strong></label>
+                <InputSelect @bind-Value="Trabajo.ClienteId" class="form-control">
+                    <option value="0">Seleccione el cliente</option>
+                    @foreach (var client in ClienteList)
+                    {
+                        <option value="@client.ClienteId">@client.ClienteId</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Trabajo.ClienteId)" />
+
+
+                <label class="form-label" for="observacion"><strong>Observacion:</strong></label>
+                <InputText id="observacion" class="form-control" @bind-Value="cotizaciones.Observacion"></InputText>
+                <ValidationMessage For="@(() => cotizaciones.Observacion)" />
+
+                <label class="form-label" for="descripcion"><strong>Descripción:</strong></label>
+                <InputText id="descripcion" class="form-control" @bind-Value="Trabajo.Descripcion"></InputText>
+                <ValidationMessage For="@(() => Trabajo.Descripcion)" />
+
+                <label class="form-label"><strong>Prioridad:</strong></label>
+                <InputSelect @bind-Value="Trabajo.PrioridadId" class="form-control">
+                    <option value="0">Seleccione la prioridad</option>
+                    @foreach (var prioridad in PrioridadesList)
+                    {
+                        <option value="@prioridad.PrioridadId">@prioridad.descripcion</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Trabajo.PrioridadId)" />
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5><strong>Detalles de artículos utilizados</strong></h5>
+            </div>
+
+            <div class="border border-success p-3 mt-3">
+                <h5>Trabajo Detalle</h5>
+
+                <SeleccionarArticuloPicker ListaArticulo="ListaArticulos"
+                                           ArticuloId="trabajoDetalle.ArticuloId"
+                                           Cantidad="trabajoDetalle.cantidad"
+                                           ArticuloSeleccionado="AgregarArticulo" />
+
+                <hr />
+                <table class="table table-light">
+                    <thead class="table table-striped">
+                        <tr class="text-center">
+                            <th>Artículo</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Remover</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detalle in Trabajo.TrabajosDetalle)
+                        {
+                            <tr class="text-center">
+                                <td class="ps-3">@detalle.Articulo.descripcion</td>
+                                <td class="ps-3">@detalle.cantidad</td>
+                                <td class="ps-3">@detalle.Precio.ToString("C")</td>
+                                <td class="ps-3">
+                                    <button type="button" class="btn btn-outline-danger bi bi-trash"
+                                            @onclick="() => RemoverDetalle(detalle)"></button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer">
+                <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+                <button type="submit" class="btn btn-success bi bi-floppy-fill"> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(mensaje))
+    {
+        <div class="alert alert-danger" role="alert">
+            @mensaje
+        </div>
+    }
+
+</EditForm>
+
+
+@code {
+    public Trabajos Trabajo { get; set; } = new Trabajos();
+    public List<Tecnicos> TecnicoList { get; set; } = new List<Tecnicos>();
+    public List<TiposTecnicos> TipoList { get; set; } = new List<TiposTecnicos>();
+    public List<Clientes> ClienteList { get; set; } = new List<Clientes>();
+    public List<Prioridades> PrioridadesList { get; set; } = new List<Prioridades>();
+    public List<Articulos> ListaArticulos { get; set; } = new List<Articulos>();
+    public TrabajosDetalle trabajoDetalle { get; set; } = new TrabajosDetalle();
+    public List<TrabajosDetalle> trabajoDetalleList { get; set; } = new List<TrabajosDetalle>();
+    public Articulos articulos { get; set; } = new Articulos();
+    public List<Trabajos> trabajoList { get; set; } = new List<Trabajos>();
+    public Cotizaciones cotizaciones { get; set; } = new Cotizaciones();
+    public string mensaje { get; set; } = string.Empty;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+        ClienteList = await clienteService.Listar(t => true);
+        PrioridadesList = await prioridadesService.Listar(p => true);
+        ListaArticulos = await dbContext.Articulos.ToListAsync();
+        trabajoList = await trabajoService.Listar(t => true);
+        Trabajo.Fecha = DateTime.Now;
+    }
+
+    public async Task Crear()
+    {
+        try
+        {
+            if (await trabajoService.Guardar(Trabajo))
+            {
+                Trabajo = new Trabajos();
+                navigation.NavigateTo("/Trabajos/Index");
+            }
+            else
+            {
+                mensaje = "No se pudo guardar el trabajo. Verifique los datos ingresados.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error: {ex.Message}";
+        }
+    }
+
+
+    public void AgregarArticulo((Articulos articulo, int cantidad) selection)
+    {
+        var detalle = new TrabajosDetalle
+            {
+                ArticuloId = selection.articulo.ArticuloId,
+                cantidad = selection.cantidad,
+                Articulo = selection.articulo,
+                Precio = selection.articulo.precio * selection.cantidad
+            };
+
+        Trabajo.TrabajosDetalle.Add(detalle);
+    }
+
+    public void RemoverDetalle(TrabajosDetalle detalle)
+    {
+        Trabajo.TrabajosDetalle.Remove(detalle);
+    }
+
+    public void Volver()
+    {
+        navigation.NavigateTo("/Trabajos/Index");
+    }
+}
