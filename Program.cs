@@ -15,7 +15,7 @@ namespace RegistroTecnicos
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
-
+             
             //Inyeccion de la base de datos (SqLite)
             var ConStr = builder.Configuration.GetConnectionString("ConStr");
             builder.Services.AddDbContext<Context>(c => c.UseSqlite(ConStr));
