@@ -57,7 +57,7 @@
 
 	public async Task<bool> Validar()
 	{
-		var existe = await clienteService.ClienteExiste(clientes.NombreCliente);
+		var existe = await clienteService.ClienteExiste(clientes.ClienteId,clientes.NombreCliente);
 		Repetido = existe == null;
 		return Repetido;
 
