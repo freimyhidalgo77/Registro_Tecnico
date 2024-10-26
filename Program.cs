@@ -27,6 +27,8 @@ namespace RegistroTecnicos
 			builder.Services.AddScoped<TrabajoService>();
             builder.Services.AddScoped<PrioridadesService>();
             builder.Services.AddScoped<TrabajosDetalleService>();
+            builder.Services.AddScoped<CotizacionService>();
+            builder.Services.AddScoped<CotizacionesDetalleService>();
 
             var app = builder.Build();
 
