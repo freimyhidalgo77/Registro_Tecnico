@@ -1,9 +1,10 @@
 ﻿@page "/Cotizaciones/Create"
+@using RegistroTecnicos.Components.Pages.TrabajosPages
 @rendermode InteractiveServer
 @inject ClienteService clienteService
 @inject TrabajoService trabajoService
 @inject PrioridadesService prioridadesService
-@inject CotizacionService cotizacionService
+@inject CotizacionService cotizacionServic
 @inject NavigationManager navigation
 @inject Context dbContext
 
@@ -40,19 +41,10 @@
                 <InputText id="observacion" class="form-control" @bind-Value="cotizaciones.Observacion"></InputText>
                 <ValidationMessage For="@(() => cotizaciones.Observacion)" />
 
-                <label class="form-label" for="descripcion"><strong>Descripción:</strong></label>
-                <InputText id="descripcion" class="form-control" @bind-Value="Trabajo.Descripcion"></InputText>
-                <ValidationMessage For="@(() => Trabajo.Descripcion)" />
+                <label class="form-label" for="descripcion"><strong>Monto:</strong></label>
+                <InputNumber id="descripcion" class="form-control" @bind-Value="cotizaciones.Monto"></InputNumber>
+                <ValidationMessage For="@(() => cotizaciones.Monto)" />
 
-                <label class="form-label"><strong>Prioridad:</strong></label>
-                <InputSelect @bind-Value="Trabajo.PrioridadId" class="form-control">
-                    <option value="0">Seleccione la prioridad</option>
-                    @foreach (var prioridad in PrioridadesList)
-                    {
-                        <option value="@prioridad.PrioridadId">@prioridad.descripcion</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => Trabajo.PrioridadId)" />
             </div>
         </div>
     </div>
