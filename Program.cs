@@ -17,11 +17,11 @@ namespace RegistroTecnicos
                 .AddInteractiveServerComponents();
              
             //Inyeccion de la base de datos (SqLite)
-            var ConStr = builder.Configuration.GetConnectionString("ConStr");
-            builder.Services.AddDbContext<Context>(c => c.UseSqlite(ConStr));
+            var ConStr = builder.Configuration.GetConnectionString("SqlConStr");  
+			builder.Services.AddDbContextFactory<Context>(o => o.UseSqlServer(ConStr));
 
-            //Inyeccion del servicio (service)
-            builder.Services.AddScoped<TecnicoService>();
+			//Inyeccion del servicio (service)
+			builder.Services.AddScoped<TecnicoService>();
             builder.Services.AddScoped<TiposTecnicoService>();
 			builder.Services.AddScoped<ClienteService>();
 			builder.Services.AddScoped<TrabajoService>();
