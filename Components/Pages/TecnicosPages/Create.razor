@@ -6,7 +6,7 @@
 
 <PageTitle>Crear nuevo T&eacute;cnico</PageTitle>
 <EditForm Model="tecnicos" OnValidSubmit="Crear">
-	<DataAnnotationsValidator />
+	<DataAnnotationsValidator />  
 	<div class="container"></div>
 	<div class="card shadow-lg">
 		<div class="card-header text-center">
@@ -15,7 +15,7 @@
 		@*Body*@
 		<div class="card-body">
 
-			@*Id tecnico*@
+			@*Id tecnico*@ 
 			<label class="form-label" for="id"><strong>T&eacute;cnico ID</strong></label>
 			<InputNumber id="TecnicoId" class="form-control" @bind-Value="tecnicos.TecnicoId" readonly></InputNumber>
 
@@ -65,7 +65,7 @@
 	//Metodo para validar atributos tecnicos(nombre,sueldo)
 	public async Task<bool> Validar()
 	{
-		var tecnicoExiste = await tecnicoService.BuscarNombres(tecnicos.NombreTecnico);
+		var tecnicoExiste = await tecnicoService.BuscarTecnico(tecnicos.NombreTecnico); 
 		return tecnicoExiste == null;
 	}
 
