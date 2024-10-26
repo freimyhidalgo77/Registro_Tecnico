@@ -9,12 +9,12 @@ namespace RegistroTecnicos.Models
         [Key]
         public int DetalleId { get; set; }
 
-        [ForeignKey("CotizacionId")]
+        [ForeignKey("Cotizaciones")]
         public int CotizacionesId { get; set; }
         public Cotizaciones? cotizaciones { get; set; }
 
 
-        [ForeignKey("ArticuloId")]
+        [ForeignKey("Articulos")]
         public int ArticuloId { get; set; }
         public Articulos? Articulos { get; set; }
 
