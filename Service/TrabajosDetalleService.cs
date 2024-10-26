@@ -5,20 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RegistroTecnicos.Service
 {
-    public class TrabajosDetalleService
+    public class TrabajosDetalleService(IDbContextFactory<Context> DbFactory)
     {
-
-        private readonly Context _contexto;
-
-        public TrabajosDetalleService(Context context)
-        {
-            _contexto = context;
-        }
-
+    
+        private readonly Context _context;
 
         public async Task<List<Articulos>> Listar(Expression<Func<Articulos, bool>> criterio)
         {
-            return await _contexto.Articulos.AsNoTracking().Where(criterio).ToListAsync();
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Articulos.Where(criterio).ToListAsync();
         }
 
 
