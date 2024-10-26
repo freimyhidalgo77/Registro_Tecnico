@@ -49,22 +49,13 @@
 	}
 
 
-	public async Task<bool> Validar()
-	{
-		var existe = await tiposTecnicosService.TipoTecnicoDescripExiste(tecnicos.Descripcion);
-		Repetido = existe == null;
-		return Repetido;
-
-	}
-
 	public async Task Modificar()
 	{
-		if (!await Validar())
-		{
+		
 			await tiposTecnicosService.Guardar(tecnicos);
 			tecnicos = new TiposTecnicos();
 			Volver();
-		}
+		
 	}
 
 
