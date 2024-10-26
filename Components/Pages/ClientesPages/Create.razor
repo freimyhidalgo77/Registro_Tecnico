@@ -53,7 +53,8 @@
 
     public async Task<bool> Validar()
     {
-        return await clienteService.ClienteExiste(clientes.NombreCliente);
+        var Client = await clienteService.ClienteExiste(clientes.ClienteId,clientes.NombreCliente);
+        return Client;
     }
 
     public void Volver()
