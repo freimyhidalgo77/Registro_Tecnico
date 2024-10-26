@@ -52,7 +52,7 @@
 
 	public async Task<bool> Validar()
 	{
-		return await prioridadesService.PrioridadExiste(prioridades.PrioridadId);
+		return await prioridadesService.PrioridadExiste(prioridades.PrioridadId, prioridades.Tiempo, prioridades.descripcion);
 	}
 
 	public void Volver()
