@@ -6,75 +6,70 @@ using System.Linq.Expressions;
 
 namespace RegistroTecnicos.Service
 {
-	public class ClienteService
-	{
+	public class ClienteService(IDbContextFactory<Context> DbFactory)
+    {
+        private async Task<bool> Existe(int clienteId)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Clientes.AnyAsync(e => e.ClienteId == clienteId);
+        }
 
-		private readonly Context _context;
+        private async Task<bool> Insertar(Clientes cliente)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            context.Clientes.Add(cliente);
+            return await context.SaveChangesAsync() > 0;
+        }
 
-		public ClienteService(Context context)
-		{
-			_context = context;
-		}
+        private async Task<bool> Modificar(Clientes cliente)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            context.Clientes.Update(cliente);
+            var modificado = await context.SaveChangesAsync() > 0;
+            return modificado;
+        }
 
-		public async Task<bool> Existe(int id)
-		{
-			return await _context.Clientes.AnyAsync(t => t.ClienteId == id);
-		}
-		 
-		private async Task<bool> Insertar(Clientes clientes)
-		{
-			_context.Clientes.Add(clientes);
-			return await _context.SaveChangesAsync() > 0;
-		}
+        public async Task<bool> Guardar(Clientes cliente)
+        {
+            if (!await Existe(cliente.ClienteId))
+                return await Insertar(cliente);
+            else
+                return await Modificar(cliente);
+        }
 
-		private async Task<bool> Modificar(Clientes clientes)
-		{
-			_context.Clientes.Update(clientes);
-			return await _context.SaveChangesAsync() > 0;
-		}
+        public async Task<bool> Eliminar(int clienteId)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Clientes
+                .Where(e => e.ClienteId == clienteId)
+                .ExecuteDeleteAsync() > 0;
+        }
 
-		public async Task<bool> Guardar(Clientes clientes)
-		{
-			if (!await Existe(clientes.ClienteId))
-				return await Insertar(clientes);
-			else
-				return await Modificar(clientes);
-		}
+        public async Task<Clientes> Buscar(int id)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Clientes
+                .FirstOrDefaultAsync(e => e.ClienteId == id);
+        }
 
-		public async Task<bool> Eliminar(int id)
-		{
-			var Incentivos = await _context.Clientes
-				.Where(t => t.ClienteId == id).ExecuteDeleteAsync();
-			return Incentivos > 0;
-		}
+        public async Task<List<Clientes>> Listar(Expression<Func<Clientes, bool>> criterio)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Clientes
+                .AsNoTracking()
+                .Where(criterio)
+                .ToListAsync();
+        }
 
-		public async Task<Clientes?> Buscar(int id)
-		{
-			return await _context.Clientes.AsNoTracking().
-				FirstOrDefaultAsync(t => t.ClienteId == id);
-		}
-
-		public async Task<List<Clientes>> Listar(Expression<Func<Clientes, bool>> criterio)
-		{
-			return _context.Clientes.AsNoTracking()
-				.Where(criterio)
-				.ToList();
-		}
-
-		//Filtrar cliente
-		public async Task<Clientes>? BuscarCliente(string nombre)
-		{
-			return await _context.Clientes.AsNoTracking()
-				.FirstOrDefaultAsync(t => t.NombreCliente == nombre);
-		}
-
-		public async Task<bool> ClienteExiste(string nombreCliente)
-		{
-			return await _context.Clientes.AnyAsync(t => t.NombreCliente == nombreCliente);
-
-		}
+        public async Task<bool> ClienteExiste(int clienteId, string nombres)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Clientes
+                .AnyAsync(e => e.ClienteId != clienteId
+                && e.NombreCliente.ToLower().Equals(nombres.ToLower()));
+        }
 
 
 
-	}
+    }
 }
