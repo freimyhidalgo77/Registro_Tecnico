@@ -10,19 +10,19 @@ namespace RegistroTecnicos.Models
         public int DetalleId { get; set; }
 
         [ForeignKey("Cotizaciones")]
-        public int CotizacionesId { get; set; }
-        public Cotizaciones? cotizaciones { get; set; }
+        public int CotizacionId { get; set; }
+        public Cotizaciones? Cotizaciones { get; set; }
 
 
-        [ForeignKey("Articulos")]
+        [ForeignKey("Articulo")]
         public int ArticuloId { get; set; }
-        public Articulos? Articulos { get; set; }
+        public Articulos? Articulo { get; set; }
 
 
-        [Required(ErrorMessage = "obligatorio introducir una cantidad")]
+        [Required(ErrorMessage = "Obligatorio introducir una cantidad")]
         public int cantidad { get; set; }
 
-        [Required(ErrorMessage = "obligatorio introducir un precio")]
+        [Required(ErrorMessage = "Obligatorio introducir un precio")]
         public decimal precio { get; set; }
 
 

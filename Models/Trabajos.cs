@@ -35,7 +35,7 @@ public class Trabajos
     public int PrioridadId { get; set; }
     public Prioridades? Prioridades { get; set; }
 
-
+    [ForeignKey("TrabajoId")]
     public ICollection<TrabajosDetalle> TrabajosDetalle { get; set; } = new List<TrabajosDetalle>();
 
 
