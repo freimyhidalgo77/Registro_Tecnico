@@ -3,15 +3,15 @@
 @rendermode InteractiveServer
 @inject ClienteService clienteService
 @inject TrabajoService trabajoService
-@inject PrioridadesService prioridadesService
-@inject CotizacionService cotizacionServic
+@inject CotizacionService cotizacionService
+@inject CotizacionesDetalleService cotizacionesDetallesService
 @inject NavigationManager navigation
 @inject Context dbContext
 
 <PageTitle>Crear Cotizacion</PageTitle>
-<EditForm Model="Trabajo" OnValidSubmit="Crear">
+<EditForm Model="cotizaciones" OnValidSubmit="Crear">
     <DataAnnotationsValidator />
-
+    <ValidationSummary />
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header text-center">
@@ -21,20 +21,20 @@
                 <label class="form-label" for="CotizacionId"><strong>Cotizacion ID:</strong></label>
                 <InputNumber id="TrabajoId" class="form-control" @bind-Value="cotizaciones.CotizacionId" readonly></InputNumber>
 
-                @* OJO:Arreglar fecha aqui, ya que Enel quiere una fecha de entrada y otra de salida, tamben usar la BD SQLServer *@
+                
                 <label class="form-label" for="Fecha"><strong>Fecha</strong></label>
-                <InputDate id="Fecha" class="form-control" @bind-Value="Trabajo.Fecha"></InputDate>
-                <ValidationMessage For="@(() => Trabajo.Fecha)" />
+                <InputDate id="Fecha" class="form-control" @bind-Value="cotizaciones.Fecha"></InputDate>
+                <ValidationMessage For="@(() => cotizaciones.Fecha)" />
 
                 <label class="form-label"><strong>Cliente ID:</strong></label>
-                <InputSelect @bind-Value="Trabajo.ClienteId" class="form-control">
+                <InputSelect @bind-Value="cotizaciones.ClienteId" class="form-control">
                     <option value="0">Seleccione el cliente</option>
                     @foreach (var client in ClienteList)
                     {
                         <option value="@client.ClienteId">@client.ClienteId</option>
                     }
                 </InputSelect>
-                <ValidationMessage For="@(() => Trabajo.ClienteId)" />
+                <ValidationMessage For="@(() => cotizaciones.ClienteId)" />
 
 
                 <label class="form-label" for="observacion"><strong>Observacion:</strong></label>
@@ -61,25 +61,25 @@
                 <SeleccionarArticuloPicker ListaArticulo="ListaArticulos"
                                            ArticuloId="trabajoDetalle.ArticuloId"
                                            Cantidad="trabajoDetalle.cantidad"
-                                           ArticuloSeleccionado="AgregarArticulo" />
+                                           ArticuloSeleccionado="AgregarCotizacion" />
 
                 <hr />
                 <table class="table table-light">
                     <thead class="table table-striped">
                         <tr class="text-center">
-                            <th>Artículo</th>
+                            <th>Artículo ID</th>
                             <th>Cantidad</th>
                             <th>Precio</th>
                             <th>Remover</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var detalle in Trabajo.TrabajosDetalle)
+                        @foreach (var detalle in cotizaciones.CotizacionesDetalles)
                         {
                             <tr class="text-center">
-                                <td class="ps-3">@detalle.Articulo.descripcion</td>
+                                <td class="ps-3">@detalle.ArticuloId</td>
                                 <td class="ps-3">@detalle.cantidad</td>
-                                <td class="ps-3">@detalle.Precio.ToString("C")</td>
+                                <td class="ps-3">@detalle.precio.ToString("C")</td>
                                 <td class="ps-3">
                                     <button type="button" class="btn btn-outline-danger bi bi-trash"
                                             @onclick="() => RemoverDetalle(detalle)"></button>
@@ -110,69 +110,85 @@
 @code {
     public Trabajos Trabajo { get; set; } = new Trabajos();
     public List<Tecnicos> TecnicoList { get; set; } = new List<Tecnicos>();
-    public List<TiposTecnicos> TipoList { get; set; } = new List<TiposTecnicos>();
     public List<Clientes> ClienteList { get; set; } = new List<Clientes>();
-    public List<Prioridades> PrioridadesList { get; set; } = new List<Prioridades>();
     public List<Articulos> ListaArticulos { get; set; } = new List<Articulos>();
     public TrabajosDetalle trabajoDetalle { get; set; } = new TrabajosDetalle();
     public List<TrabajosDetalle> trabajoDetalleList { get; set; } = new List<TrabajosDetalle>();
     public Articulos articulos { get; set; } = new Articulos();
     public List<Trabajos> trabajoList { get; set; } = new List<Trabajos>();
     public Cotizaciones cotizaciones { get; set; } = new Cotizaciones();
+    public decimal Total { get; set; }
+    public List<CotizacionesDetalles> cotizacionDetalleList { get; set; } = new List<CotizacionesDetalles>();
     public string mensaje { get; set; } = string.Empty;
+    public CotizacionesDetalles cotizacionesDetalles { get; set; } = new CotizacionesDetalles();
 
 
     protected override async Task OnInitializedAsync()
     {
-       
-        ClienteList = await clienteService.Listar(t => true);
-        PrioridadesList = await prioridadesService.Listar(p => true);
-        ListaArticulos = await dbContext.Articulos.ToListAsync();
-        trabajoList = await trabajoService.Listar(t => true);
-        Trabajo.Fecha = DateTime.Now;
+        ClienteList = await clienteService.Listar(e => e.ClienteId > 0);
+        ListaArticulos = await cotizacionesDetallesService.Listar(a => a.ArticuloId > 0);
     }
 
-    public async Task Crear()
+    private async Task AgregarCotizacion((Articulos articulos, int Cantidad) selection)
     {
-        try
+        var ArticuloExiste = cotizaciones.CotizacionesDetalles.FirstOrDefault(A => A.ArticuloId == selection.articulos.ArticuloId);
+        if(ArticuloExiste != null)
         {
-            if (await trabajoService.Guardar(Trabajo))
+            ArticuloExiste.cantidad += selection.Cantidad;
+            ArticuloExiste.precio = ArticuloExiste.Articulo.precio * ArticuloExiste.cantidad;
+            Total += ArticuloExiste.precio;
+        }
+        else
+        {
+            var CotizacionesDetalle = new CotizacionesDetalles
+                {
+                    ArticuloId = selection.articulos.ArticuloId,
+                    cantidad = selection.Cantidad,
+                    precio = selection.articulos.precio * selection.Cantidad,
+                };
+            Total += selection.articulos.precio;
+            cotizaciones.CotizacionesDetalles.Add(CotizacionesDetalle);
+            cotizacionesDetalles = new CotizacionesDetalles();
+            await Task.CompletedTask;
+        }
+    }
+
+    private async Task Crear()
+    {
+        
+            if (!cotizaciones.CotizacionesDetalles.Any())
             {
-                Trabajo = new Trabajos();
-                navigation.NavigateTo("/Trabajos/Index");
+                mensaje = "Debe agregar al menos un articulo";
+                return;
+            }
+            cotizaciones.Monto = Total;
+            var crear = await cotizacionService.Guardar(cotizaciones);
+            cotizaciones = new Cotizaciones();
+
+            if (crear)
+            {
+                mensaje = "Se ha creado correctamente la cotizacion";
+                navigation.NavigateTo("/Cotizacion/Index");
             }
             else
             {
-                mensaje = "No se pudo guardar el trabajo. Verifique los datos ingresados.";
+                mensaje = "No se ha creado correctamente la cotizacion";
             }
-        }
-        catch (Exception ex)
-        {
-            mensaje = $"Error: {ex.Message}";
-        }
+        
+      
     }
 
 
-    public void AgregarArticulo((Articulos articulo, int cantidad) selection)
+    public void RemoverDetalle(CotizacionesDetalles detalle)
     {
-        var detalle = new TrabajosDetalle
-            {
-                ArticuloId = selection.articulo.ArticuloId,
-                cantidad = selection.cantidad,
-                Articulo = selection.articulo,
-                Precio = selection.articulo.precio * selection.cantidad
-            };
-
-        Trabajo.TrabajosDetalle.Add(detalle);
-    }
-
-    public void RemoverDetalle(TrabajosDetalle detalle)
-    {
-        Trabajo.TrabajosDetalle.Remove(detalle);
+        cotizaciones.CotizacionesDetalles.Remove(detalle);
+        cotizacionesDetalles.ArticuloId = detalle.ArticuloId;
+        cotizacionesDetalles.cantidad = detalle.cantidad;
+        cotizacionesDetalles.precio = detalle.precio;
     }
 
     public void Volver()
     {
-        navigation.NavigateTo("/Trabajos/Index");
+        navigation.NavigateTo("/Cotizaciones/Index");
     }
 }
