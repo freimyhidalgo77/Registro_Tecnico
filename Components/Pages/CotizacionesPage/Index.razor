@@ -19,10 +19,9 @@
             <label for="Filtro" class="form-label"><strong>Filtrar por:</strong></label>
             <InputSelect id="filtro" class="form-select" @bind-Value="filtro">
                 <option value="" disabled>Seleccionar</option>
-                <option value="CotizacionId">Cotizacion Id</option>
                 <option value="Fecha">Fecha</option>
-                <option value="ClienteId">Cliente ID</option>
-                <option value="Monto">Monto</option>
+                <option value="Cliente">Cliente ID</option>
+               
             </InputSelect>
         </div>
 
@@ -40,11 +39,11 @@
         <div class="col-md-3">
             <div class="row">
                 <div class="col-md-6">
-                    <label for="fechaInicial" class="form-label"><strong>Fecha Iniciar:</strong></label>
+                    <label for="FechaInicial" class="form-label"><strong>Fecha Inicial:</strong></label>
                     <input type="date" @bind="Desde" class="form-control" />
                 </div>
                 <div class="col-md-6">
-                    <label for="fechaFinal" class="form-label"><strong>Fecha Final:</strong></label>
+                    <label for="FechaFinal" class="form-label"><strong>Fecha Final:</strong></label>
                     <input type="date" @bind="Hasta" class="form-control" />
                 </div>
             </div>
@@ -108,45 +107,22 @@
 
     private async Task Buscar()
     {
-        if (!string.IsNullOrWhiteSpace(ValorFiltro))
+        if (ValorFiltro.Trim() != "")
         {
-            Expression<Func<Trabajos, bool>> criterio = t => true;
-
-            if (filtro == "TrabajoId" && int.TryParse(ValorFiltro, out int trabajoId))
+            if (filtro == "Cliente")
             {
-                criterio = t => t.TrabajoId == trabajoId;
-            }
-            else if (filtro == "Fecha" && DateTime.TryParse(ValorFiltro, out DateTime fecha))
-            {
-                criterio = t => t.Fecha.Date == fecha.Date;
-            }
-            else if (filtro == "ClienteId" && int.TryParse(ValorFiltro, out int clienteId))
-            {
-                criterio = t => t.ClienteId == clienteId;
-            }
-            else if (filtro == "NombreCliente")
-            {
-                criterio = t => t.Clientes != null && t.Clientes.NombreCliente.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
-            }
-            else if (filtro == "TecnicoId" && int.TryParse(ValorFiltro, out int tecnicoId))
-            {
-                criterio = t => t.TecnicoId == tecnicoId;
-            }
-            else if (filtro == "NombreTecnico")
-            {
-                criterio = t => t.Tecnicos != null && t.Tecnicos.NombreTecnico.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
-            }
-            else if (filtro == "Descripcion")
-            {
-                criterio = t => t.TiposTecnicos != null && t.TiposTecnicos.Descripcion.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase);
-            }
-            else if (filtro == "Monto" && decimal.TryParse(ValorFiltro, out decimal monto))
-            {
-                criterio = t => t.Monto == monto;
+                CotizacionesList = await cotizacionService.Listar(e => e.Clientes.NombreCliente.ToLower().Contains(ValorFiltro.ToLower()) && e.Fecha >= Desde && e.Fecha <= Hasta);
             }
 
-            trabajos = await trabajoService.Listar(criterio);
-            StateHasChanged();
+        }
+        else if (filtro == "Fecha")
+        {
+            CotizacionesList = await cotizacionService
+            .Listar(f => f.Fecha >= Desde && f.Fecha <= Hasta);
+        }
+        else
+        {
+            CotizacionesList = await cotizacionService.Listar(e => e.CotizacionId > 0);
         }
     }
 }
