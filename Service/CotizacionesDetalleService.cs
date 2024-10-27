@@ -14,6 +14,27 @@ namespace RegistroTecnicos.Service
 			await using var context = await DbFactory.CreateDbContextAsync();
 			return await context.Articulos.Where(criterio).ToListAsync();
 		}
+        public async Task<bool> Agregar(int articuloId, int cantidad)
+        {
+            await using var contexto = await DbFactory.CreateDbContextAsync();
+            if (cantidad <= 0)
+            {
+                throw new ArgumentException("Error, la cantidad debe ser mayor que cero.");
+            }
 
-	}
+            var articulo = await contexto.Articulos.FindAsync(articuloId);
+
+            if (articulo != null)
+            {
+                articulo.existencia += cantidad;
+                contexto.Articulos.Update(articulo);
+                await contexto.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
+
+
+    }
 }
