@@ -38,16 +38,25 @@ namespace RegistroTecnicos.Service
 				return await Modificar(cotizacion);
 		}
 
-		public async Task<bool> Eliminar(int cotizacionId)
-		{
-			await using var context = await DbFactory.CreateDbContextAsync();
-			return await context.Cotizaciones
-				.Include(d => d.CotizacionesDetalles)
-				.Where(c => c.CotizacionId == cotizacionId)
-				.ExecuteDeleteAsync() > 0;
-		}
+        public async Task<bool> Eliminar(int id)
+        {
+            await using var contexto = await DbFactory.CreateDbContextAsync();
 
-		public async Task<Cotizaciones> Buscar(int id)
+            var cotizacion = await contexto.Cotizaciones
+                .Include(c => c.CotizacionesDetalles)
+                .FirstOrDefaultAsync(c => c.CotizacionId == id);
+
+            if (cotizacion == null)
+                return false;
+
+            // Eliminar detalles relacionados y luego la cotización
+            contexto.CotizacionesDetalles.RemoveRange(cotizacion.CotizacionesDetalles);
+            contexto.Cotizaciones.Remove(cotizacion);
+
+            return await contexto.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Cotizaciones> Buscar(int id)
 		{
 			await using var context = await DbFactory.CreateDbContextAsync();
 			return await context.Cotizaciones
@@ -63,6 +72,8 @@ namespace RegistroTecnicos.Service
 				.ThenInclude(td => td.Articulo)
 				.FirstOrDefaultAsync(t => t.CotizacionId == Id);
 		}
+
+
 		public async Task<List<Cotizaciones>> Listar(Expression<Func<Cotizaciones, bool>> criterio)
 		{
 			await using var contexto = await DbFactory.CreateDbContextAsync();
@@ -75,5 +86,17 @@ namespace RegistroTecnicos.Service
 		}
 
 
-	}
+        public async Task<Cotizaciones?> RemoverConId(int id)
+        {
+
+            await using var contexto = await DbFactory.CreateDbContextAsync();
+            return await contexto.Cotizaciones
+                .Include(c => c.CotizacionesDetalles)
+                .FirstOrDefaultAsync(c => c.CotizacionId == id);
+        }
+
+
+     
+
+    }
 }
