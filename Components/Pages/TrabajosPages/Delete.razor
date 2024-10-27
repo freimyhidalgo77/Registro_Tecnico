@@ -9,78 +9,80 @@
             <h3><strong>Eliminar Trabajo</strong></h3>
         </div>
         <div class="card-body">
-            <h5><strong>¿Estás seguro que quieres eliminar este trabajo?</strong></h5>
-            <div class="mb-1">
-                <p><strong>Trabajo ID:</strong> @trabajo.TrabajoId</p>
-            </div>
-            <div class="mb-1">
-                <p><strong>Fecha:</strong> @trabajo.Fecha.ToShortDateString()</p>
-            </div>
-            <div class="mb-1">
-                <p><strong>Cliente ID:</strong> @trabajo.ClienteId</p>
-            </div>
-            <div class="mb-1">
-                <p><strong>Nombre Cliente:</strong> @trabajo.Clientes?.NombreCliente</p>
-            </div>
-            <div class="mb-1">
-                <p><strong>Técnico ID:</strong> @trabajo.TecnicoId</p>
-            </div>
-            <div class="mb-1">
-                <p><strong>Nombre Técnico:</strong> @trabajo.Tecnicos?.NombreTecnico</p>
-            </div>
-            <div class="mb-1">
-                <p><strong>Descripción:</strong> @trabajo.TiposTecnicos?.Descripcion</p>
-            </div>
-            <div class="mb-1">
-                <p><strong>Monto:</strong> @trabajo.Monto.ToString("C")</p>
-            </div>
+            @if (!string.IsNullOrEmpty(MensajeError))
+            {
+                <p class="text-danger">@MensajeError</p>
+            }
+            else if (trabajo != null)
+            {
+                <h5><strong>¿Estás seguro que quieres eliminar este trabajo?</strong></h5>
+                <div class="mb-1">
+                    <p><strong>Trabajo ID:</strong> @trabajo.TrabajoId</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Fecha:</strong> @trabajo.Fecha.ToShortDateString()</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Cliente ID:</strong> @trabajo.ClienteId</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Nombre Cliente:</strong> @trabajo.Clientes?.NombreCliente</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Técnico ID:</strong> @trabajo.TecnicoId</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Nombre Técnico:</strong> @trabajo.Tecnicos?.NombreTecnico</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Descripción:</strong> @trabajo.TiposTecnicos?.Descripcion</p>
+                </div>
+                <div class="mb-1">
+                    <p><strong>Monto:</strong> @trabajo.Monto.ToString("C")</p>
+                </div>
 
-            <div class="border border-success p-3 mt-3">
-                @foreach (var detalle in trabajo.TrabajosDetalle)
-                {
-                    <ul>
-                        <li>Articulo Id: @detalle.ArticuloId</li>
-                        <li>Nombre Articulo: @detalle.Articulo?.descripcion</li>
-                        <li>Cantidad Articulo: @detalle.cantidad </li>
-                    </ul>
-                }
-            </div>
-        </div>
-
-
-        <div class="border border-success p-3 mt-3">
-
-            <table class="table table-light table-bordered">
-                <thead class="table table-striped text-center">
-                    <tr>
-                        <th>ArticuloId</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                    </tr>
-                </thead>
-                <tbody>
+                <div class="border border-success p-3 mt-3">
                     @foreach (var detalle in trabajo.TrabajosDetalle)
                     {
-                        var descripcionArticulo = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.descripcion ?? "No encontrado";
-                        <tr>
-                            <td>@descripcionArticulo</td>
-                            <td>@detalle.cantidad</td>
-                            <td>@detalle.Precio.ToString("C")</td>
-                        </tr>
+                        <ul>
+                            <li>Articulo Id: @detalle.ArticuloId</li>
+                            <li>Nombre Articulo: @detalle.Articulo?.descripcion</li>
+                            <li>Cantidad Articulo: @detalle.cantidad </li>
+                        </ul>
                     }
-                </tbody>
-            </table>
+                </div>
 
+                <div class="border border-success p-3 mt-3">
+                    <table class="table table-light table-bordered">
+                        <thead class="table table-striped text-center">
+                            <tr>
+                                <th>ArticuloId</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detalle in trabajo.TrabajosDetalle)
+                            {
+                                var descripcionArticulo = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.descripcion ?? "No encontrado";
+                                <tr>
+                                    <td>@descripcionArticulo</td>
+                                    <td>@detalle.cantidad</td>
+                                    <td>@detalle.Precio.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
 
-
-            <div class="card-footer">
-                <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
-                <button type="button" class="btn btn-danger bi bi-trash" @onclick="EliminarTrabajo"> Eliminar</button>
-            </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+            <button type="button" class="btn btn-danger bi bi-trash" @onclick="EliminarTrabajo"> Eliminar</button>
         </div>
     </div>
-
+</div>
 
 @code {
     [Parameter]
