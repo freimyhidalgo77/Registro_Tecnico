@@ -26,8 +26,8 @@ namespace RegistroTecnicos.Service
 		{
 			await using var context = await DbFactory.CreateDbContextAsync();
 			context.Cotizaciones.Update(cotizacion);
-			var modificado = await context.SaveChangesAsync() > 0;
-			return modificado;
+			var editado = await context.SaveChangesAsync() > 0;
+			return editado;
 		}
 
 		public async Task<bool> Guardar(Cotizaciones cotizacion)
@@ -60,7 +60,7 @@ namespace RegistroTecnicos.Service
 			return await context.Cotizaciones
 				.Include(t => t.Clientes)
 				.Include(t => t.CotizacionesDetalles)
-				.ThenInclude(td => td.Articulos)
+				.ThenInclude(td => td.Articulo)
 				.FirstOrDefaultAsync(t => t.CotizacionId == Id);
 		}
 		public async Task<List<Cotizaciones>> Listar(Expression<Func<Cotizaciones, bool>> criterio)
