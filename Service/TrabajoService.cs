@@ -5,227 +5,114 @@ using System.Linq.Expressions;
 
 namespace RegistroTecnicos.Service
 {
-    public class TrabajoService
+    public class TrabajoService(IDbContextFactory<Context> DbFactory)
     {
         private readonly Context _context;
 
-        public TrabajoService(Context context)
+        private async Task<bool> Existe(int trabajoId)
         {
-            _context = context;
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Trabajos.AnyAsync(e => e.TrabajoId == trabajoId);
         }
 
-        public async Task<bool> Existe(int id)
+        public async Task AfectarCantidad(TrabajosDetalle[] detalles, bool resta)
         {
-            return await _context.Trabajos.AnyAsync(t => t.TrabajoId == id);
-        }
-
-       
-        public async Task AfectarArticulos(TrabajosDetalle[] trabajosDetalle, bool afectar)
-        {
-            foreach (var detalle in trabajosDetalle)
+            await using var context = await DbFactory.CreateDbContextAsync();
+            foreach (var item in detalles)
             {
-                var articulo = await _context.Articulos.SingleAsync(a => a.ArticuloId == detalle.ArticuloId);
-
-                if (afectar)
-                {
-                    
-                    articulo.existencia += detalle.cantidad; 
-                }
+                var articulo = await context.Articulos.SingleAsync(a => a.ArticuloId == item.ArticuloId);
+                if (resta)
+                    articulo.existencia -= item.cantidad;
                 else
-                {
-                   
-                    articulo.existencia -= detalle.cantidad;
-                }
-
-                
-                _context.Articulos.Update(articulo);
+                    articulo.existencia += item.cantidad;
             }
-
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
-        private async Task<bool> Insertar(Trabajos trabajos)
+        private async Task<bool> Insertar(Trabajos trabajo)
         {
-
-            await AfectarArticulos(trabajos.TrabajosDetalle.ToArray(), true);
-            _context.Trabajos.Add(trabajos);
-            return await _context.SaveChangesAsync() > 0;
+            await using var context = await DbFactory.CreateDbContextAsync();
+            await AfectarCantidad(trabajo.TrabajosDetalle.ToArray(), true);
+            context.Trabajos.Add(trabajo);
+            return await context.SaveChangesAsync() > 0;
         }
-
 
         private async Task<bool> Modificar(Trabajos trabajos)
         {
-            var trabajoOriginal = await _context.Trabajos
+            await using var context = await DbFactory.CreateDbContextAsync();
+            var trabajoOriginal = await context.Trabajos
             .Include(t => t.TrabajosDetalle)
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.TrabajoId == trabajos.TrabajoId);
 
-            await AfectarArticulos(trabajoOriginal.TrabajosDetalle.ToArray(), false);
+            await AfectarCantidad(trabajoOriginal.TrabajosDetalle.ToArray(), false);
 
-            await AfectarArticulos(trabajos.TrabajosDetalle.ToArray(), true);
+            await AfectarCantidad(trabajos.TrabajosDetalle.ToArray(), true);
 
-            _context.Update(trabajos);
-            return await _context.SaveChangesAsync() > 0;
+            context.Update(trabajos);
+            return await context.SaveChangesAsync() > 0;
         }
 
-
-        public async Task<bool> Guardar(Trabajos trabajos)
+        public async Task<bool> Guardar(Trabajos trabajo)
         {
-            string mensaje;
-            try
-            {
-                if (!await Existe(trabajos.TrabajoId))
-                    return await Insertar(trabajos);
-                else
-                    return await Modificar(trabajos);
-            }
-            catch (DbUpdateException ex)
-            {
-                mensaje = "Error al guardar los cambios: " + ex.InnerException?.Message;
+            if (!await Existe(trabajo.TrabajoId))
+                return await Insertar(trabajo);
+            else
+                return await Modificar(trabajo);
+        }
+
+        public async Task<bool> Eliminar(int trabajoId)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            var trabajo = context.Trabajos.Find(trabajoId);
+            if (trabajo == null)
                 return false;
-            }
-            catch (Exception ex)
-            {
-                mensaje = "Se produjo un error inesperado: " + ex.Message;
-                return false;
-            }
-        }
 
-        public async Task<bool> Eliminar(int id)
-        {
-            var trabajosEliminados = await _context.Trabajos
-                .Where(t => t.TrabajoId == id).ExecuteDeleteAsync();
-            return trabajosEliminados > 0;
+            await AfectarCantidad(trabajo.TrabajosDetalle.ToArray(), false);
+            return await context.Trabajos
+                .Include(t => t.TrabajosDetalle)
+                .Where(e => e.TrabajoId == trabajoId)
+                .ExecuteDeleteAsync() > 0;
         }
-
-        public async Task<Trabajos?> Buscar(int id)
+        public async Task<Trabajos> Buscar(int id)
         {
-            return await _context.Trabajos
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Trabajos
+                .Include(e => e.Tecnicos).Include(e => e.Clientes)
+                .Include(e => e.Prioridades)
+                .Include(t => t.TrabajosDetalle)
                 .AsNoTracking()
+               .FirstOrDefaultAsync(e => e.TrabajoId == id);
+        }
+
+        public async Task<Trabajos> BuscarDetalles(int trabajoId)
+        {
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Trabajos
+                .Include(t => t.Prioridades)
                 .Include(t => t.Clientes)
                 .Include(t => t.Tecnicos)
-                .Include(t => t.TiposTecnicos)
-                .Select(t => new Trabajos
-                {
-                    TrabajoId = t.TrabajoId,
-                    ClienteId = t.ClienteId,
-                    TecnicoId = t.TecnicoId,
-                    PrioridadId = t.PrioridadId,
-                    TipoId = t.TipoId,
-                    Fecha = t.Fecha,
-                    Monto = t.Monto,
-
-                    Clientes = new Clientes
-                    {
-                        ClienteId = t.Clientes.ClienteId,
-                        NombreCliente = t.Clientes.NombreCliente
-                    },
-                    Tecnicos = new Tecnicos
-                    {
-                        TecnicoId = t.Tecnicos.TecnicoId,
-                        NombreTecnico = t.Tecnicos.NombreTecnico
-                    },
-                    TiposTecnicos = new TiposTecnicos
-                    {
-                        Descripcion = t.TiposTecnicos.Descripcion
-                    },
-                    Prioridades = new Prioridades
-                    {
-                        descripcion = t.Prioridades.descripcion
-                    },
-                })
-                .FirstOrDefaultAsync(t => t.TrabajoId == id);
+                .Include(t => t.TrabajosDetalle)
+                .ThenInclude(td => td.Articulo)
+                .FirstOrDefaultAsync(t => t.TrabajoId == trabajoId);
         }
 
         public async Task<List<Trabajos>> Listar(Expression<Func<Trabajos, bool>> criterio)
         {
-            return await _context.Trabajos
-                .AsNoTracking()
-                .Include(t => t.Clientes)
-                .Include(t => t.Tecnicos)
-                .Include(t => t.TiposTecnicos)
-                .Include(t => t.Prioridades)
-                .Where(criterio)
-                .Select(t => new Trabajos
-                {
-                    TrabajoId = t.TrabajoId,
-                    ClienteId = t.ClienteId,
-                    TecnicoId = t.TecnicoId,
-                    TipoId = t.TipoId,
-                    Fecha = t.Fecha,
-                    Monto = t.Monto,
-                    PrioridadId = t.PrioridadId,
-
-                   
-                    Clientes = t.Clientes != null ? new Clientes
-                    {
-                        ClienteId = t.Clientes.ClienteId,
-                        NombreCliente = t.Clientes.NombreCliente
-                    } : null, 
-
-                    Tecnicos = t.Tecnicos != null ? new Tecnicos
-                    {
-                        TecnicoId = t.Tecnicos.TecnicoId,
-                        NombreTecnico = t.Tecnicos.NombreTecnico
-                    } : null, 
-
-                    TiposTecnicos = t.TiposTecnicos != null ? new TiposTecnicos
-                    {
-                        Descripcion = t.TiposTecnicos.Descripcion
-                    } : null, 
-
-                    Prioridades = t.Prioridades != null ? new Prioridades
-                    {
-                        descripcion = t.Prioridades.descripcion
-                    } : null, 
-                })
-                .ToListAsync();
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Trabajos.Include(e => e.Tecnicos)
+                .Include(e => e.Clientes)
+                .Include(e => e.Prioridades)
+                .Include(t => t.TrabajosDetalle)
+                .AsNoTracking().Where(criterio).ToListAsync();
         }
 
-
-        public async Task<Trabajos?> BuscarTrabajo(int id)
+        public async Task<bool> BuscarTrabajo(int trabajoId)
         {
-            return await _context.Trabajos
-                .AsNoTracking()
-                .Include(t => t.Clientes)
-                .Include(t => t.Tecnicos)
-                .Include(t => t.TiposTecnicos)
-                .Include(t => t.Prioridades)
-                .Select(t => new Trabajos
-                {
-                    TrabajoId = t.TrabajoId,
-                    ClienteId = t.ClienteId,
-                    TecnicoId = t.TecnicoId,
-                    PrioridadId = t.PrioridadId,
-                    TipoId = t.TipoId,
-                    Fecha = t.Fecha,
-                    Monto = t.Monto,
-
-                    Clientes = t.Clientes != null ? new Clientes
-                    {
-                        ClienteId = t.Clientes.ClienteId,
-                        NombreCliente = t.Clientes.NombreCliente
-                    } : null,
-
-                    Tecnicos = t.Tecnicos != null ? new Tecnicos
-                    {
-                        TecnicoId = t.Tecnicos.TecnicoId,
-                        NombreTecnico = t.Tecnicos.NombreTecnico
-                    } : null,
-
-                    TiposTecnicos = t.TiposTecnicos != null ? new TiposTecnicos
-                    {
-                        Descripcion = t.TiposTecnicos.Descripcion
-                    } : null,
-
-                    Prioridades = t.Prioridades != null ? new Prioridades
-                    {
-                        descripcion = t.Prioridades.descripcion
-                    } : null,
-                })
-                .FirstOrDefaultAsync(t => t.TrabajoId == id);
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Trabajos
+                .AnyAsync(e => e.TrabajoId == trabajoId);
         }
-
 
 
 

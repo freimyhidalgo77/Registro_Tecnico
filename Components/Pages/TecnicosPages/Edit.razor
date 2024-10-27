@@ -68,24 +68,16 @@
 
 	}
 
-	//Metodo para validar
-	public async Task<bool> Validar()
-	{
-		var existe = await tecnicoService.ValidarTecnico(tecnicos.NombreTecnico);
-		Repetido = existe == null;
-		return Repetido;
-
-	}
+	
 
 	//Metodo para modificar atributos tecnicos
 	public async Task Modificar()
 	{
-		if (!await Validar())
-		{
-			await tecnicoService.Guardar(tecnicos);
+	
+	        await tecnicoService.Guardar(tecnicos);
 			tecnicos = new Tecnicos();
 			Volver();
-		}
+		
 	}
 
 	//Metodo para volver

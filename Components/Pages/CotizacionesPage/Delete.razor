@@ -1,0 +1,107 @@
+﻿@page "/Cotizaciones/Delete/{CotizacionId:int}"
+@inject TrabajoService trabajoService
+@inject CotizacionService cotizacionService
+@inject ClienteService clienteService
+@inject CotizacionesDetalleService cotizacionesDetallesService
+@inject NavigationManager navigation
+
+<PageTitle>Eliminar Trabajo</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header">
+            <h3><strong>Eliminar Cotizacion</strong></h3>
+        </div>
+        <div class="card-body">
+            <h5><strong>¿Estás seguro que quieres eliminar esta cotizacion?</strong></h5>
+            <div class="mb-1">
+                <p><strong>Cotizacion ID:</strong> @cotizacion?.CotizacionId</p>
+            </div>
+            <div class="mb-1">
+                <p><strong>Fecha:</strong> @cotizacion?.Fecha.ToShortDateString()</p>
+            </div>
+            <div class="mb-1">
+                <p><strong>Cliente ID:</strong> @cotizacion?.ClienteId</p>
+            </div>
+            <div class="mb-1">
+                <p><strong>Observacion:</strong> @cotizacion?.Observacion</p>
+            </div>
+            <div class="mb-1">
+                <p><strong>Monto:</strong> @cotizacion?.Monto</p>
+            </div>
+        </div>
+
+        <div class="border border-success p-3 mt-3">
+            <table class="table table-light table-bordered">
+                <thead class="table table-striped text-center">
+                    <tr>
+                        <th>ArticuloId</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in detallesCotizacion)
+                    {
+                        var articuloDescripcion = listaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.descripcion ?? "No encontrado";
+                        <tr>
+                            <td>@articuloDescripcion</td>
+                            <td>@detalle.cantidad</td>
+                            <td>@detalle.precio.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer">
+            <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Regresar"> Volver</button>
+            <button type="submit" class="btn btn-danger bi bi-trash" @onclick="EliminarCotizacion"> Eliminar</button>
+        </div>
+    </div>
+</div>
+
+@code {
+        [Parameter]
+    public int CotizacionId { get; set; }
+    private Cotizaciones? cotizacion;
+    private List<CotizacionesDetalles> detallesCotizacion = new();
+    private List<Articulos> listaArticulos = new();
+    public string mensaje { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Cotizacion();
+    }
+
+    private async Task Cotizacion()
+    {
+        cotizacion = await cotizacionService.BuscarConDetalles(CotizacionId);
+        if (cotizacion != null)
+        {
+            detallesCotizacion = cotizacion.CotizacionesDetalles.ToList();
+            listaArticulos = await cotizacionesDetallesService.Listar(_ => true);
+        }
+    }
+
+    private async Task EliminarCotizacion()
+    {
+        if (cotizacion != null)
+        {
+            bool exitoEliminacion = await cotizacionService.Eliminar(CotizacionId);
+            if (exitoEliminacion)
+            {
+                navigation.NavigateTo("/Trabajos/Index");  
+            }
+            else
+            {
+
+                mensaje = "Error al eliminar la cotización";
+            }
+        }
+    }
+
+    private void Regresar()
+    {
+        navigation.NavigateTo("/Trabajos/Index");
+    }
+}

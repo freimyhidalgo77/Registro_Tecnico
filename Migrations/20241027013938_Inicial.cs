@@ -17,12 +17,12 @@ namespace RegistroTecnicos.Migrations
                 name: "Articulos",
                 columns: table => new
                 {
-                    ArticuloId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    costo = table.Column<decimal>(type: "TEXT", nullable: false),
-                    precio = table.Column<decimal>(type: "TEXT", nullable: false),
-                    existencia = table.Column<int>(type: "INTEGER", nullable: false)
+                    ArticuloId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    costo = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    existencia = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,10 +33,10 @@ namespace RegistroTecnicos.Migrations
                 name: "Clientes",
                 columns: table => new
                 {
-                    ClienteId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    NombreCliente = table.Column<string>(type: "TEXT", nullable: false),
-                    NumeroWhatsapp = table.Column<string>(type: "TEXT", nullable: false)
+                    ClienteId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NombreCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NumeroWhatsapp = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,10 +47,10 @@ namespace RegistroTecnicos.Migrations
                 name: "Prioridades",
                 columns: table => new
                 {
-                    PrioridadId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    Tiempo = table.Column<int>(type: "INTEGER", nullable: false)
+                    PrioridadId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Tiempo = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -61,9 +61,9 @@ namespace RegistroTecnicos.Migrations
                 name: "TiposTecnicos",
                 columns: table => new
                 {
-                    TipoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false)
+                    TipoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -71,15 +71,37 @@ namespace RegistroTecnicos.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Cotizaciones",
+                columns: table => new
+                {
+                    CotizacionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    ClientesClienteId = table.Column<int>(type: "int", nullable: true),
+                    Observacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cotizaciones", x => x.CotizacionId);
+                    table.ForeignKey(
+                        name: "FK_Cotizaciones_Clientes_ClientesClienteId",
+                        column: x => x.ClientesClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "ClienteId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tecnicos",
                 columns: table => new
                 {
-                    TecnicoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    NombreTecnico = table.Column<string>(type: "TEXT", nullable: false),
-                    SueldoHora = table.Column<decimal>(type: "TEXT", nullable: false),
-                    TipoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TipoTecnicosTipoId = table.Column<int>(type: "INTEGER", nullable: true)
+                    TecnicoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NombreTecnico = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SueldoHora = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TipoId = table.Column<int>(type: "int", nullable: false),
+                    TipoTecnicosTipoId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -92,18 +114,46 @@ namespace RegistroTecnicos.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CotizacionesDetalles",
+                columns: table => new
+                {
+                    DetalleId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CotizacionId = table.Column<int>(type: "int", nullable: false),
+                    ArticuloId = table.Column<int>(type: "int", nullable: false),
+                    cantidad = table.Column<int>(type: "int", nullable: false),
+                    precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CotizacionesDetalles", x => x.DetalleId);
+                    table.ForeignKey(
+                        name: "FK_CotizacionesDetalles_Articulos_ArticuloId",
+                        column: x => x.ArticuloId,
+                        principalTable: "Articulos",
+                        principalColumn: "ArticuloId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CotizacionesDetalles_Cotizaciones_CotizacionId",
+                        column: x => x.CotizacionId,
+                        principalTable: "Cotizaciones",
+                        principalColumn: "CotizacionId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Trabajos",
                 columns: table => new
                 {
-                    TrabajoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    Monto = table.Column<decimal>(type: "TEXT", nullable: false),
-                    ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TecnicoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TipoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    PrioridadId = table.Column<int>(type: "INTEGER", nullable: false)
+                    TrabajoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    TecnicoId = table.Column<int>(type: "int", nullable: false),
+                    TipoId = table.Column<int>(type: "int", nullable: false),
+                    PrioridadId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -138,13 +188,13 @@ namespace RegistroTecnicos.Migrations
                 name: "TrabajosDetalle",
                 columns: table => new
                 {
-                    DetalleId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    TrabajoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ArticuloId = table.Column<int>(type: "INTEGER", nullable: false),
-                    cantidad = table.Column<int>(type: "INTEGER", nullable: false),
-                    Precio = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Costo = table.Column<decimal>(type: "TEXT", nullable: false)
+                    DetalleId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TrabajoId = table.Column<int>(type: "int", nullable: false),
+                    ArticuloId = table.Column<int>(type: "int", nullable: false),
+                    cantidad = table.Column<int>(type: "int", nullable: false),
+                    Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Costo = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -173,6 +223,21 @@ namespace RegistroTecnicos.Migrations
                     { 3, 25m, "Mouse Gamer  Logitech G502", 50, 35m },
                     { 4, 30m, "Monitor Sony Inzone M9", 50, 38m }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cotizaciones_ClientesClienteId",
+                table: "Cotizaciones",
+                column: "ClientesClienteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CotizacionesDetalles_ArticuloId",
+                table: "CotizacionesDetalles",
+                column: "ArticuloId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CotizacionesDetalles_CotizacionId",
+                table: "CotizacionesDetalles",
+                column: "CotizacionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tecnicos_TipoTecnicosTipoId",
@@ -214,7 +279,13 @@ namespace RegistroTecnicos.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "CotizacionesDetalles");
+
+            migrationBuilder.DropTable(
                 name: "TrabajosDetalle");
+
+            migrationBuilder.DropTable(
+                name: "Cotizaciones");
 
             migrationBuilder.DropTable(
                 name: "Articulos");

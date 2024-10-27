@@ -1,0 +1,198 @@
+﻿@page "/Cotizaciones/Edit/{CotizacionId:int}"
+@using RegistroTecnicos.Components.Pages.TrabajosPages
+@rendermode InteractiveServer
+@inject TrabajoService trabajoService
+@inject TecnicoService tecnicoService
+@inject TiposTecnicoService tiposTecnicoService
+@inject ClienteService clienteService
+@inject NavigationManager navigation
+@inject PrioridadesService prioridadesService
+@inject CotizacionService cotizacionesService
+@inject CotizacionesDetalleService cotizacionesDetalleService
+@inject IJSRuntime JS
+
+<PageTitle>Editar cotizaciones</PageTitle>
+<EditForm Model="cotizaciones" OnValidSubmit="Modificar">
+    <DataAnnotationsValidator />
+   
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h1><strong>Editar cotizacion</strong></h1>
+            </div>
+            <div class="card-body">
+                <label class="form-label" for="CotizacionId"><strong>Cotizacion ID:</strong></label>
+                <InputNumber id="TrabajoId" class="form-control" @bind-Value="cotizaciones.CotizacionId" readonly></InputNumber>
+
+                
+                <label class="form-label" for="Fecha"><strong>Fecha</strong></label>
+                <InputDate id="Fecha" class="form-control" @bind-Value="cotizaciones.Fecha"></InputDate>
+                <ValidationMessage For="@(() => cotizaciones.Fecha)" />
+
+                <label class="form-label"><strong>Cliente ID:</strong></label>
+                <InputSelect @bind-Value="cotizaciones.ClienteId" class="form-control">
+                    <option value="0">Seleccione el cliente</option>
+                    @foreach (var client in ClienteList)
+                    {
+                        <option value="@client.ClienteId">@client.ClienteId</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => cotizaciones.ClienteId)" />
+
+
+                <label class="form-label" for="observacion"><strong>Observacion:</strong></label>
+                <InputText id="observacion" class="form-control" @bind-Value="cotizaciones.Observacion"></InputText>
+                <ValidationMessage For="@(() => cotizaciones.Observacion)" />
+
+                <label class="form-label" for="descripcion"><strong>Monto:</strong></label>
+                <InputNumber id="descripcion" class="form-control" @bind-Value="cotizaciones.Monto"></InputNumber>
+                <ValidationMessage For="@(() => cotizaciones.Monto)" />
+
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5><strong>Detalles de artículos utilizados</strong></h5>
+            </div>
+
+            <div class="border border-success p-3 mt-3">
+                <h5>Trabajo Detalle</h5>
+
+                <SeleccionarArticuloPicker ListaArticulo="ArticulosList"
+                                           ArticuloId="trabajoDetalle.ArticuloId"
+                                           Cantidad="trabajoDetalle.cantidad"
+                                           ArticuloSeleccionado="AgregarCotizacion" />
+
+                <hr />
+                <table class="table table-light">
+                    <thead class="table table-striped">
+                        <tr class="text-center">
+                            <th>Artículo ID</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Remover</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detalle in cotizaciones.CotizacionesDetalles)
+                        {
+                            <tr class="text-center">
+                                <td class="ps-3">@detalle.ArticuloId</td>
+                                <td class="ps-3">@detalle.cantidad</td>
+                                <td class="ps-3">@detalle.precio.ToString("C")</td>
+                                <td class="ps-3">
+                                    <button type="button" class="btn btn-outline-danger bi bi-trash"
+                                            @onclick="() => RemoverDetalle(detalle)"></button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer">
+                <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+                <button type="submit" class="btn btn-success bi bi-floppy-fill"> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(mensaje))
+    {
+        <div class="alert alert-danger" role="alert">
+            @mensaje
+        </div>
+    }
+
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int CotizacionId { get; set; } 
+    public Trabajos Trabajo { get; set; } = new Trabajos();
+    public List<Tecnicos> TecnicoList { get; set; } = new List<Tecnicos>();
+    public List<Clientes> ClienteList { get; set; } = new List<Clientes>();
+    public List<Articulos> ArticulosList { get; set; } = new List<Articulos>();
+    public TrabajosDetalle trabajoDetalle { get; set; } = new TrabajosDetalle();
+    public List<TrabajosDetalle> trabajoDetalleList { get; set; } = new List<TrabajosDetalle>();
+    public Articulos articulos { get; set; } = new Articulos();
+    public List<Trabajos> trabajoList { get; set; } = new List<Trabajos>();
+    public Cotizaciones cotizaciones { get; set; } = new Cotizaciones();
+    public decimal Total { get; set; }
+    public List<CotizacionesDetalles> cotizacionDetalleList { get; set; } = new List<CotizacionesDetalles>();
+    public string mensaje { get; set; } = string.Empty;
+    public CotizacionesDetalles cotizacionesDetalles { get; set; } = new CotizacionesDetalles();
+
+    protected override async Task OnInitializedAsync()
+    {
+        cotizaciones = await cotizacionesService.BuscarConDetalles(CotizacionId);
+        ClienteList = await clienteService.Listar(e => e.ClienteId > 0);
+        ArticulosList = await cotizacionesDetalleService.Listar(a => a.ArticuloId > 0);
+    }
+
+    private async Task AgregarCotizacion((Articulos articulos, int Cantidad) selection)
+    {
+        var ArticuloExiste = cotizaciones.CotizacionesDetalles.FirstOrDefault(A => A.ArticuloId == selection.articulos.ArticuloId);
+        if (ArticuloExiste != null)
+        {
+            ArticuloExiste.cantidad += selection.Cantidad;
+            ArticuloExiste.precio = ArticuloExiste.Articulo.precio * ArticuloExiste.cantidad;
+            Total += ArticuloExiste.precio;
+        }
+        else
+        {
+            var CotizacionesDetalle = new CotizacionesDetalles
+                {
+                    ArticuloId = selection.articulos.ArticuloId,
+                    cantidad = selection.Cantidad,
+                    precio = selection.articulos.precio * selection.Cantidad,
+                };
+            Total += selection.articulos.precio;
+            cotizaciones.CotizacionesDetalles.Add(CotizacionesDetalle);
+            cotizacionesDetalles = new CotizacionesDetalles();
+            await Task.CompletedTask;
+        }
+    }
+
+    private async Task Modificar()
+    {
+        if (!cotizaciones.CotizacionesDetalles.Any())
+        {
+            mensaje = "Debe agregar al menos un articulo";
+            return;
+        }
+        cotizaciones.Monto = Total;
+        var crear = await cotizacionesService.Guardar(cotizaciones);
+        cotizaciones = new Cotizaciones();
+
+        if (crear)
+        {
+            mensaje = "Se ha creado correctamente la cotizacion";
+            navigation.NavigateTo($"/Cotizaciones/Index");
+        }
+        else
+        {
+            mensaje = "No se ha creado correctamente la cotizacion";
+        }
+
+    }
+
+    public void RemoverDetalle(CotizacionesDetalles detalle)
+    {
+        cotizaciones.CotizacionesDetalles.Remove(detalle);
+        cotizacionesDetalles.ArticuloId = detalle.ArticuloId;
+        cotizacionesDetalles.cantidad = detalle.cantidad;
+        cotizacionesDetalles.precio = detalle.precio;
+    }
+
+
+
+    public void Volver()
+    {
+        navigation.NavigateTo("/Cotizaciones/Index");
+    }
+}

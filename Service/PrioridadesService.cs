@@ -6,79 +6,69 @@ using System.Linq.Expressions;
 
 namespace RegistroTecnicos.Service
 {
-    public class PrioridadesService
+    public class PrioridadesService(IDbContextFactory<Context> DbFactory)
     {
         private readonly Context _context;
 
-        public PrioridadesService(Context context)
+        private async Task<bool> Existe(int prioridadId)
         {
-            _context = context;
-
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Prioridades.AnyAsync(e => e.PrioridadId == prioridadId);
         }
 
-        public async Task<bool> Existe(int id)
+        private async Task<bool> Insertar(Prioridades prioridad)
         {
-            return await _context.Prioridades.AnyAsync(t => t.PrioridadId == id);
-
-        } 
-         
-
-        public async Task<bool> Insertar(Prioridades prioridades)
-        {
-            _context.Prioridades.Add(prioridades);
-            return await _context.SaveChangesAsync() > 0;
-
+            await using var context = await DbFactory.CreateDbContextAsync();
+            context.Prioridades.Add(prioridad);
+            return await context.SaveChangesAsync() > 0;
         }
 
-        public async Task <bool> Modificar(Prioridades prioridades)
+        private async Task<bool> Modificar(Prioridades prioridad)
         {
-            _context.Prioridades.Update(prioridades);
-            return await _context.SaveChangesAsync() > 0;
+            await using var context = await DbFactory.CreateDbContextAsync();
+            context.Update(prioridad);
+            var modificado = await context.SaveChangesAsync() > 0;
+            return modificado;
         }
 
-        public async Task <bool> Guardar(Prioridades prioridades)
+        public async Task<bool> Guardar(Prioridades prioridad)
         {
-            if(!await Existe(prioridades.PrioridadId))
-                return await Insertar(prioridades);
-            else
-                return await Modificar(prioridades);
-
+            if (!await Existe(prioridad.PrioridadId))
+                return await Insertar(prioridad);
+                return await Modificar(prioridad);   
         }
 
-        public async Task <bool> Eliminar(int id)
+        public async Task<bool> Eliminar(int prioridadId)
         {
-            var Prioridades = await _context.Prioridades
-            .Where(t => t.PrioridadId == id).ExecuteDeleteAsync();
-            return Prioridades > 0;
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Prioridades
+                .Where(e => e.PrioridadId == prioridadId)
+                .ExecuteDeleteAsync() > 0;
         }
 
-        public async Task<Prioridades?> Buscar(int id)
+        public async Task<Prioridades> Buscar(int id)
         {
-            return await _context.Prioridades.AsNoTracking().
-                FirstOrDefaultAsync(t => t.PrioridadId == id);
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Prioridades
+                .FirstOrDefaultAsync(e => e.PrioridadId == id);
         }
 
-        public async Task<List<Prioridades>>Listar(Expression <Func<Prioridades, bool>> criterio)
+        public async Task<List<Prioridades>> Listar(Expression<Func<Prioridades, bool>> criterio)
         {
-            return _context.Prioridades.AsNoTracking()
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Prioridades
+                .AsNoTracking()
                 .Where(criterio)
-                .ToList();
-
+                .ToListAsync();
         }
 
-
-        public async Task<Prioridades?> BuscarPrioridad(string descripcion)
+        public async Task<bool> PrioridadExiste(int id, int tiempo, string descripcion)
         {
-            return await _context.Prioridades.AsNoTracking()
-                .FirstOrDefaultAsync(t => t.descripcion == descripcion);
-
-        }
-
-
-        public async Task<bool> PrioridadExiste(int id)
-        {
-            return await _context.Prioridades.AnyAsync(t => t.PrioridadId == id);
-
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Prioridades
+                .AnyAsync(e => e.PrioridadId != id
+                && e.Tiempo == tiempo
+                || e.descripcion.ToLower().Equals(descripcion.ToLower()));
         }
 
 

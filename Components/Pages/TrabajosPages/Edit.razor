@@ -134,15 +134,15 @@
     {
         if (TrabajoId > 0)
         {
-            trabajo = await trabajoService.BuscarTrabajo(TrabajoId);
-            if (trabajo == null)
+            trabajo = await trabajoService.BuscarDetalles(TrabajoId);
+            if (trabajo != null)
             {
-                // Handle caso cuando trabajo no se encuentra
+               
                 trabajo = new Trabajos();
             }
         }
 
-        // Cargar listas de clientes, técnicos, tipos y prioridades
+    
         ClienteList = await clienteService.Listar(c => true);
         tecnicList = await tecnicoService.Listar(t => true);
         TipoList = await tiposTecnicoService.Listar(t => true);
