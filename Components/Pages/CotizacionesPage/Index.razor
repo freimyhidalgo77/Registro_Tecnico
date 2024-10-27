@@ -1,15 +1,16 @@
-﻿@page "/Trabajos/Index"
+﻿@page "/Cotizaciones/Index"
 @using System.Linq.Expressions
 @inject TrabajoService trabajoService
 @inject TecnicoService tecnicoService
 @inject ClienteService clienteService
+@inject CotizacionService cotizacionService
 @inject NavigationManager navigation
 
-<PageTitle>Trabajos</PageTitle>
+<PageTitle>Cotizaciones</PageTitle>
 
 <div class="container card shadow-lg">
-    <div class="card-header text-center bi bi-person-workspace">
-        <h3><strong>Trabajos</strong></h3>
+    <div class="card-header text-center bi bi-bank">
+        <h3><strong>Cotizaciones</strong></h3>
     </div>
 
     <!-- Header -->
@@ -18,14 +19,13 @@
             <label for="Filtro" class="form-label"><strong>Filtrar por:</strong></label>
             <InputSelect id="filtro" class="form-select" @bind-Value="filtro">
                 <option value="" disabled>Seleccionar</option>
-                <option value="TrabajoId">Trabajo Id</option>
+                <option value="CotizacionId">Cotizacion Id</option>
                 <option value="Fecha">Fecha</option>
-                <option value="NombreCliente">Cliente</option>
-                <option value="NombreTecnico">Tecnico</option>
-                <option value="Descripcion">Descripcion</option>
+                <option value="ClienteId">Cliente ID</option>
                 <option value="Monto">Monto</option>
             </InputSelect>
         </div>
+
         <div class="col-md-6">
             <label for="ValorFiltro" class="form-label"><strong>Búsqueda:</strong></label>
             <div class="input-group">
@@ -33,76 +33,77 @@
                 <button @onclick="Buscar" class="btn btn-success" type="button">
                     <span class="bi bi-search"></span> Buscar
                 </button>
+                <a href="/Cotizaciones/Create" class="btn btn-success bi bi-plus-square-fill ms-2"> Crear</a>
             </div>
         </div>
-        <div class="col-md-3 d-flex align-items-end justify-content-md-end mt-3 mt-md-0">
-            <a href="/Trabajos/Create" class="btn btn-success bi bi-plus-square-fill"> Crear</a>
+
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="fechaInicial" class="form-label"><strong>Fecha Iniciar:</strong></label>
+                    <input type="date" @bind="Desde" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label for="fechaFinal" class="form-label"><strong>Fecha Final:</strong></label>
+                    <input type="date" @bind="Hasta" class="form-control" />
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Body -->
     <div class="card-body">
         <table class="table table-light table-bordered">
-            <thead class="table table-striped text-center table-bordered mt-3 ">
+            <thead class="table table-striped text-center table-bordered mt-3">
                 <tr>
-                    <th>Trabajo ID</th>
+                    <th>Cotizacion ID</th>
                     <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th>Tecnico</th>
-                    <th>Descripcion</th>
+                    <th>Cliente ID</th>
+                    <th>Observacion</th>
                     <th>Monto</th>
-                    <th>Prioridad</th>
-                    <th>Ver</th>
                     <th>Editar</th>
                     <th>Eliminar</th>
                 </tr>
             </thead>
             <tbody>
-
-
-                @foreach (var trabajo in trabajos)
+                @foreach (var cotizacion in CotizacionesList)
                 {
                     <tr>
-                        <td class="text-center">@trabajo.TrabajoId</td>
-                        <td class="text-center">@trabajo.Fecha.ToShortDateString()</td>
-                        <td class="text-center">@trabajo.Clientes?.NombreCliente</td>
-                        <td class="text-center">@trabajo.Tecnicos?.NombreTecnico</td>
-                        <td class="text-center">@trabajo.TiposTecnicos?.Descripcion</td>
-                        <td class="text-center">@trabajo.Monto.ToString("C")</td>
-                        <td class="text-center">@trabajo.Prioridades?.descripcion</td>
+                        <td class="text-center">@cotizacion.CotizacionId</td>
+                        <td class="text-center">@cotizacion.Fecha</td>
+                        <td class="text-center">@cotizacion.ClienteId</td>
+                        <td class="text-center">@cotizacion.Observacion</td>
+                        <td class="text-center">@cotizacion.Monto</td>
                         <td class="text-center">
-                            <a href="/Trabajos/Details/@trabajo.TrabajoId" class="btn btn-outline-info bi bi-eye"></a>
+                            <a href="/Cotizaciones/Edit/@cotizacion.CotizacionId" class="btn btn-outline-warning bi bi-pencil-square"></a>
                         </td>
                         <td class="text-center">
-                            <a href="/Trabajos/Edit/@trabajo.TrabajoId" class="btn btn-outline-warning bi bi-pencil-square"></a>
-                        </td>
-                        <td class="text-center">
-                            <a href="/Trabajos/Delete/@trabajo.TrabajoId" class="btn btn-outline-danger bi bi-trash"></a>
+                            <a href="/Cotizaciones/Delete/@cotizacion.CotizacionId" class="btn btn-outline-danger bi bi-trash"></a>
                         </td>
                     </tr>
                 }
-
             </tbody>
-
         </table>
         <div class="card-footer">
-            <p><strong>Total de Trabajos: </strong>@trabajos?.Count</p>
+            <p><strong>Total de Cotizaciones: </strong>@CotizacionesList?.Count</p>
         </div>
-
     </div>
 </div>
 
 @code {
     public List<Trabajos> trabajos { get; set; } = new List<Trabajos>();
     public List<Clientes> ClienteList { get; set; } = new List<Clientes>();
+    public List<Cotizaciones> CotizacionesList { get; set; } = new List<Cotizaciones>();
+    public DateTime? Desde { get; set; }
+    public DateTime? Hasta { get; set; }
     public string filtro { get; set; } = string.Empty;
     public string ValorFiltro { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-
-        trabajos = await trabajoService.Listar(t => true);
-
+        CotizacionesList = await cotizacionService.Listar(c => c.CotizacionId > 0);
+        Desde = null;
+        Hasta = null;
     }
 
     private async Task Buscar()
