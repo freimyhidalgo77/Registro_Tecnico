@@ -58,7 +58,7 @@
                             {
                                 var descripcion = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.descripcion;
                                 <tr>
-                                    <td>@descripcion</td>
+                                    
                                     <td>@detalle.cantidad</td>
                                     <td>@detalle.Precio.ToString("C")</td>
                                 </tr>
@@ -88,10 +88,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        trabajo = await trabajoService.BuscarTrabajo(TrabajoId);
-        tecnico = await tecnicosServices.Buscar(trabajo.TecnicoId);
-        prioridad = await prioridadesServices.Buscar(trabajo.PrioridadId);
-        ListaArticulos = await dbContext.Articulos.ToListAsync();
+        trabajo = await trabajoService.BuscarDetalles(TrabajoId);
+        
     }
             
            

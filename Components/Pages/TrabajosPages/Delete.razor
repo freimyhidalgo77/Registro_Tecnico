@@ -91,7 +91,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        trabajo = await trabajoService.BuscarTrabajo(trabajoId);
+        trabajo = await trabajoService.BuscarDetalles(trabajoId);
         if (trabajo == null)
         {
             MensajeError = "El trabajo no fue encontrado.";
